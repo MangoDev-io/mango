@@ -1,8 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
+
+	"github.com/algorand/go-algorand-sdk/mnemonic"
+	"github.com/algorand/go-algorand-sdk/types"
+
+	"github.com/algorand/go-algorand-sdk/client/kmd"
 
 	"github.com/algorand/go-algorand-sdk/client/algod"
 
@@ -11,6 +17,9 @@ import (
 
 const algodAddress = "https://testnet-algorand.api.purestake.io/ps1"
 const psToken = "FS0ZoE4JAe6MWL1CiJytR9nktogYSVC640C8fgk0"
+
+const kmdAddress = "http://e52be07a.ngrok.io"
+const kmdToken = "728cb3c737832f97f8ea929f63773ac7b0b0aac2a1ad48b929e002d38643a872"
 
 func main() {
 
@@ -56,6 +65,28 @@ func main() {
 	logger.Printf("algod time since last round: %d\n", nodeStatus.TimeSinceLastRound)
 	logger.Printf("algod catchup: %d\n", nodeStatus.CatchupTime)
 	logger.Printf("algod latest version: %s\n", nodeStatus.LastVersion)
+
+	kmdClient, err := kmd.MakeClient(kmdAddress, kmdToken)
+	if err != nil {
+		logger.WithError(err).Fatal("failed to make kmd client")
+		return
+	}
+
+	backupPhrase := "fire enlist diesel stamp nuclear chunk student stumble call snow flock brush example slab guide choice option recall south kangaroo hundred matrix school above zero"
+	keyBytes, err := mnemonic.ToKey(backupPhrase)
+	if err != nil {
+		fmt.Printf("failed to get key: %s\n", err)
+		return
+	}
+
+	var mdk types.MasterDerivationKey
+	copy(mdk[:], keyBytes)
+	cwResponse, err := kmdClient.CreateWallet("testwallet", "testpassword", kmd.DefaultWalletDriver, mdk)
+	if err != nil {
+		fmt.Printf("error creating wallet: %s\n", err)
+		return
+	}
+	fmt.Printf("Created wallet '%s' with ID: %s\n", cwResponse.Wallet.Name, cwResponse.Wallet.ID)
 
 	routerService := NewRouterService(logger)
 
