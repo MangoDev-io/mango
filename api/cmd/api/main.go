@@ -18,8 +18,8 @@ import (
 const algodAddress = "https://testnet-algorand.api.purestake.io/ps1"
 const psToken = "FS0ZoE4JAe6MWL1CiJytR9nktogYSVC640C8fgk0"
 
-const kmdAddress = "http://e52be07a.ngrok.io"
-const kmdToken = "728cb3c737832f97f8ea929f63773ac7b0b0aac2a1ad48b929e002d38643a872"
+const kmdAddress = "http://299799fb.ngrok.io"
+const kmdToken = "ff590ebc0ac6793eb075dcbcb48df407a17008514612a99ad154be5c8f49eb9e"
 
 func main() {
 

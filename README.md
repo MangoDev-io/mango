@@ -11,6 +11,13 @@
 1. Replace `psToken` in API `main.go`
 2. Replace `kmdAddress` and `kmdToken` in API `main.go`
 
+To start and stop `kmd` (from within the node directory):
+
+```
+./goal kmd start -t 3600 -d <datadir>
+./goal kmd stop -d <datadir>
+```
+
 Run the following commands to start the project from the root dir:
 
 ```
