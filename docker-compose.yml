@@ -1,0 +1,14 @@
+version: "3"
+services:
+  api:
+    container_name: api
+    build: ./api
+    ports:
+      - "5000:5000"
+  web:
+    container_name: web
+    build: ./web
+    ports:
+      - "4200:4200"
+    links:
+      - api
