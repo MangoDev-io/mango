@@ -6,6 +6,8 @@ services:
     env_file: ./api/.env
     ports:
       - "5000:5000"
+    links:
+      - db
   web:
     container_name: web
     build: ./web
@@ -13,3 +15,12 @@ services:
       - "4200:4200"
     links:
       - api
+  db:
+    container_name: db
+    image: postgres:9.6.1
+    environment:
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=extremelySAFUPassword
+    ports:
+      - "5432:5432"
