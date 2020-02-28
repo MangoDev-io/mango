@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/data"
+
 	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/config"
 
 	"github.com/algorand/go-algorand-sdk/mnemonic"
@@ -44,10 +46,16 @@ func main() {
 		}
 	}()
 
+	// Load Configuration
 	config, err := config.New()
 	if err != nil {
 		logger.WithError(err).Panic("Missing configuration")
 	}
+	logger.Info("Loaded configuration...")
+
+	// Setup Database
+	databaseService := data.NewDatabaseService(config.DatabaseConfig).WaitUntilReady()
+	logger.Info("Connected to database...")
 
 	var headers []*algod.Header
 	headers = append(headers, &algod.Header{"X-API-Key", config.PSToken})
@@ -89,7 +97,7 @@ func main() {
 	}
 	fmt.Printf("Created wallet '%s' with ID: %s\n", cwResponse.Wallet.Name, cwResponse.Wallet.ID)
 
-	routerService := NewRouterService(logger)
+	routerService := NewRouterService(logger, databaseService)
 
 	logger.Infoln("Starting server on port 5000")
 	logger.Fatal(http.ListenAndServe(":5000", routerService))
