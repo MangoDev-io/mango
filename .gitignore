@@ -90,3 +90,5 @@ Thumbs.db
 *.out
 
 api/.env
+.env
+*.env
