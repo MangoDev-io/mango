@@ -3,6 +3,7 @@ services:
   api:
     container_name: api
     build: ./api
+    env_file: ./api/.env
     ports:
       - "5000:5000"
   web:
