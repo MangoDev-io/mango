@@ -1,0 +1,25 @@
+$lora-font: 'Lora', 'serif';
+
+.login__container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 100vh;
+
+    font-family: $lora-font;
+}
+
+.login__big-text {
+    font-size: 5rem;
+}
+
+.login__input {
+    max-width: 67%;
+}
+
+.login__button {
+    font-family: inherit;
+    margin-top: 10px;
+}

@@ -1,1 +1,21 @@
-<p>login works!</p>
+<section class="container login__container">
+  <h1 class="login__big-text">
+    Welcome to Mango 🥭
+  </h1>
+  <form #loginForm="ngForm">
+    <input
+      class="input is-warning login__input"
+      type="text"
+      placeholder="Enter Mnemonic Phrase"
+
+      [(ngModel)]="mnemonic"
+      name="mnemonic"
+    />
+    <button
+      (click)="loginClickHandler()"
+      class="button is-warning login__button"
+    >
+      Get Started 🚀
+    </button>
+  </form>
+</section>
