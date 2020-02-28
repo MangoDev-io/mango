@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/config"
+
 	"github.com/algorand/go-algorand-sdk/mnemonic"
 	"github.com/algorand/go-algorand-sdk/types"
 
@@ -14,12 +16,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 )
-
-const algodAddress = "https://testnet-algorand.api.purestake.io/ps1"
-const psToken = "FS0ZoE4JAe6MWL1CiJytR9nktogYSVC640C8fgk0"
-
-const kmdAddress = "http://299799fb.ngrok.io"
-const kmdToken = "ff590ebc0ac6793eb075dcbcb48df407a17008514612a99ad154be5c8f49eb9e"
 
 func main() {
 
@@ -48,11 +44,16 @@ func main() {
 		}
 	}()
 
-	var headers []*algod.Header
-	headers = append(headers, &algod.Header{"X-API-Key", psToken})
-	algodClient, err := algod.MakeClientWithHeaders(algodAddress, "", headers)
+	config, err := config.New()
 	if err != nil {
-		logger.WithError(err).Fatal("failed to make algod client")
+		logger.WithError(err).Panic("Missing configuration")
+	}
+
+	var headers []*algod.Header
+	headers = append(headers, &algod.Header{"X-API-Key", config.PSToken})
+	algodClient, err := algod.MakeClientWithHeaders(config.AlgodAddress, "", headers)
+	if err != nil {
+		logger.WithError(err).Panic("failed to make algod client")
 	}
 
 	nodeStatus, err := algodClient.Status()
@@ -66,9 +67,9 @@ func main() {
 	logger.Printf("algod catchup: %d\n", nodeStatus.CatchupTime)
 	logger.Printf("algod latest version: %s\n", nodeStatus.LastVersion)
 
-	kmdClient, err := kmd.MakeClient(kmdAddress, kmdToken)
+	kmdClient, err := kmd.MakeClient(config.KMDAddress, config.KMDToken)
 	if err != nil {
-		logger.WithError(err).Fatal("failed to make kmd client")
+		logger.WithError(err).Panic("failed to make kmd client")
 		return
 	}
 
@@ -81,7 +82,7 @@ func main() {
 
 	var mdk types.MasterDerivationKey
 	copy(mdk[:], keyBytes)
-	cwResponse, err := kmdClient.CreateWallet("testwallet", "testpassword", kmd.DefaultWalletDriver, mdk)
+	cwResponse, err := kmdClient.CreateWallet("sdk,jfgsdlkufjgasdfbsaldikf", "testpassword", kmd.DefaultWalletDriver, mdk)
 	if err != nil {
 		fmt.Printf("error creating wallet: %s\n", err)
 		return
