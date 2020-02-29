@@ -6,8 +6,9 @@
                 [ngStyle]="{ background: gradient }"
             ></div>
         </div>
-        <div class="column is-two-thirds" id="token-entry__right">
-            {{ token.name }}
+        <div class="column is-two-thirds token-entry__content">
+            <h1>{{ token.assetName }}</h1>
+            <p>{{ token.assetId }}</p>
         </div>
     </div>
 </div>
