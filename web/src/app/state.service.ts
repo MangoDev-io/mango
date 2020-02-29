@@ -1,15 +1,27 @@
-import { Injectable } from '@angular/core';
-import { Token } from './model/token';
+import { Injectable } from '@angular/core'
+import { Token } from './model/token'
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root',
 })
 export class StateService {
-  public tokenList: Token[] = [
-    { id: 1, name: 'A'},
-    { id: 2, name: 'B'},
-    { id: 3, name: 'C'}
-  ]
+    public currToken = new Token(
+        '324234',
+        'JHJBFDISFD43534534534FGDSGF',
+        'USD Tether',
+        'USDT',
+        100000000,
+        15,
+        false,
+        'https://usdtether.io',
+        '',
+        '',
+        '',
+        '',
+        ''
+    )
 
-  constructor() { }
+    public tokenList: Token[] = [this.currToken, this.currToken, this.currToken]
+
+    constructor() {}
 }

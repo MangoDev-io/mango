@@ -1,1 +1,196 @@
-<p>token-details works!</p>
+<div class="container">
+    <article class="message tokenDetails__message">
+        <div class="message-header">
+            <p>{{ currToken.assetName }} ({{ currToken.unitName }})</p>
+        </div>
+        <div class="message-body has-background-grey-lighter">
+            <div class="columns has-text-centered">
+                <div class="column is-half">
+                    <div class="columns">
+                        <div class="column is-half">
+                            <p class="is-pulled-right is-size-5">Asset ID:</p>
+                        </div>
+                        <div class="column is-half">
+                            <span
+                                class="tag is-dark is-medium is-pulled-left"
+                                >{{ currToken.assetId }}</span
+                            >
+                        </div>
+                    </div>
+                    <br />
+                    <div class="columns">
+                        <div class="column is-half">
+                            <p class="is-pulled-right is-size-5">Asset Name:</p>
+                        </div>
+                        <div class="column is-half">
+                            <span
+                                class="tag is-dark is-medium is-pulled-left"
+                                >{{ currToken.assetName }}</span
+                            >
+                        </div>
+                    </div>
+                    <br />
+                    <div class="columns">
+                        <div class="column is-half">
+                            <p class="is-pulled-right is-size-5">Total:</p>
+                        </div>
+                        <div class="column is-half">
+                            <span
+                                class="tag is-dark is-medium is-pulled-left"
+                                >{{ currToken.total }}</span
+                            >
+                        </div>
+                    </div>
+                    <br />
+                    <div class="columns" *ngIf="currToken.url">
+                        <div class="column is-half">
+                            <p class="is-pulled-right is-size-5">URL:</p>
+                        </div>
+                        <div class="column is-half">
+                            <a href="{{ currToken.url }}"
+                                ><span
+                                    class="tag is-dark is-medium is-pulled-left"
+                                    >{{ currToken.url }}</span
+                                ></a
+                            >
+                        </div>
+                    </div>
+                    <div
+                        class="columns"
+                        *ngIf="!currToken.url && currToken.metadataHash"
+                    >
+                        <div class="column is-half">
+                            <p class="is-pulled-right is-size-5">
+                                Metadata Hash:
+                            </p>
+                        </div>
+                        <div class="column is-half">
+                            <span
+                                class="tag is-dark is-medium is-pulled-left"
+                                >{{ currToken.metadataHash }}</span
+                            >
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-half">
+                    <div class="columns">
+                        <div class="column is-half">
+                            <p class="is-pulled-right is-size-5">Unit Name:</p>
+                        </div>
+                        <div class="column is-half">
+                            <span
+                                class="tag is-dark is-medium is-pulled-left"
+                                >{{ currToken.unitName }}</span
+                            >
+                        </div>
+                    </div>
+                    <br />
+                    <div class="columns">
+                        <div class="column is-half">
+                            <p class="is-pulled-right is-size-5">Decimals:</p>
+                        </div>
+                        <div class="column is-half">
+                            <span
+                                class="tag is-dark is-medium is-pulled-left"
+                                >{{ currToken.decimals }}</span
+                            >
+                        </div>
+                    </div>
+                    <br />
+                    <div class="columns">
+                        <div class="column is-half">
+                            <p class="is-pulled-right is-size-5">
+                                Default Frozen:
+                            </p>
+                        </div>
+                        <div class="column is-half">
+                            <span
+                                class="tag is-dark is-medium is-pulled-left"
+                                >{{ currToken.defaultFrozen }}</span
+                            >
+                        </div>
+                    </div>
+                    <br />
+                    <div
+                        class="columns"
+                        *ngIf="currToken.url && currToken.metadataHash"
+                    >
+                        <div class="column is-half">
+                            <p class="is-pulled-right is-size-5">
+                                Metadata Hash:
+                            </p>
+                        </div>
+                        <div class="column is-half">
+                            <span
+                                class="tag is-dark is-medium is-pulled-left"
+                                >{{ currToken.metadataHash }}</span
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="columns has-text-centered tokenDetails__manage-addresses-first"
+            >
+                <div class="column is-one-third">
+                    <p class="is-size-5 is-pulled-right">
+                        Creator Address:
+                    </p>
+                </div>
+                <div class="column">
+                    <span class="tag is-dark is-medium is-pulled-left">{{
+                        currToken.creatorAddr
+                    }}</span>
+                </div>
+            </div>
+            <div class="columns has-text-centered">
+                <div class="column is-one-third">
+                    <p class="is-size-5 is-pulled-right">
+                        Manager Address:
+                    </p>
+                </div>
+                <div class="column">
+                    <span class="tag is-dark is-medium is-pulled-left">{{
+                        currToken.managerAddr
+                    }}</span>
+                </div>
+            </div>
+            <div class="columns has-text-centered">
+                <div class="column is-one-third">
+                    <p class="is-size-5 is-pulled-right">
+                        Reserve Address:
+                    </p>
+                </div>
+                <div class="column">
+                    <span class="tag is-dark is-medium is-pulled-left">{{
+                        currToken.reserveAddr
+                    }}</span>
+                </div>
+            </div>
+            <div class="columns has-text-centered">
+                <div class="column is-one-third">
+                    <p class="is-size-5 is-pulled-right">
+                        Freeze Address:
+                    </p>
+                </div>
+                <div class="column">
+                    <span class="tag is-dark is-medium is-pulled-left">{{
+                        currToken.freezeAddr
+                    }}</span>
+                </div>
+            </div>
+            <div class="columns has-text-centered">
+                <div class="column is-one-third">
+                    <p class="is-size-5 is-pulled-right">
+                        Clawback Address:
+                    </p>
+                </div>
+                <div class="column">
+                    <span class="tag is-dark is-medium is-pulled-left">{{
+                        currToken.clawbackAddr
+                    }}</span>
+                </div>
+            </div>
+        </div>
+    </article>
+</div>
