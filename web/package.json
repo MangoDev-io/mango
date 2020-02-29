@@ -44,5 +44,11 @@
     "ts-node": "~8.6.2",
     "tslint": "~6.0.0",
     "typescript": "^3.6.5"
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 4,
+    "semi": false,
+    "singleQuote": true
   }
 }

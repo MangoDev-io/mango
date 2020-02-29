@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { StateService } from '../../state.service';
 
 @Component({
   selector: 'app-token-lister',
@@ -7,7 +8,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TokenListerComponent implements OnInit {
 
-  constructor() { }
+  constructor(public stateSvc: StateService) { }
 
   ngOnInit(): void {
   }
