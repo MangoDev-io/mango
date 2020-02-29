@@ -1,1 +1,13 @@
-<p>token-entry works!</p>
+<div class="box token-entry__container">
+    <div class="columns">
+        <div class="column is-one-third">
+            <div
+                class="token-entry__gradient"
+                [ngStyle]="{ background: gradient }"
+            ></div>
+        </div>
+        <div class="column is-two-thirds" id="token-entry__right">
+            {{ token.name }}
+        </div>
+    </div>
+</div>
