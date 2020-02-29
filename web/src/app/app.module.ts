@@ -8,6 +8,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { ManageComponent } from './pages/manage/manage.component';
 import { TokenListerComponent } from './components/token-lister/token-lister.component';
 import { TokenEntryComponent } from './components/token-entry/token-entry.component';
+import { TokenDetailsComponent } from './components/token-details/token-details.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { TokenEntryComponent } from './components/token-entry/token-entry.compon
     LoginComponent,
     ManageComponent,
     TokenListerComponent,
-    TokenEntryComponent
+    TokenEntryComponent,
+    TokenDetailsComponent
   ],
   imports: [
     BrowserModule,
