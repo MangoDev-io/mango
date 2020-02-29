@@ -6,12 +6,14 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './pages/login/login.component';
 import { ManageComponent } from './pages/manage/manage.component';
+import { TokenListerComponent } from './components/token-lister/token-lister.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    ManageComponent
+    ManageComponent,
+    TokenListerComponent
   ],
   imports: [
     BrowserModule,
