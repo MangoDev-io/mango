@@ -7,13 +7,15 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './pages/login/login.component';
 import { ManageComponent } from './pages/manage/manage.component';
 import { TokenListerComponent } from './components/token-lister/token-lister.component';
+import { TokenEntryComponent } from './components/token-entry/token-entry.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     ManageComponent,
-    TokenListerComponent
+    TokenListerComponent,
+    TokenEntryComponent
   ],
   imports: [
     BrowserModule,
