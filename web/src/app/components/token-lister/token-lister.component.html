@@ -1,7 +1,5 @@
 <section>
     <div *ngFor="let token of stateSvc.tokenList" class="token__container">
-        <div class="token__entry box">
-            <strong>{{ token.name }}</strong>
-        </div>
+        <app-token-entry [token]="token"></app-token-entry>
     </div>
 </section>
