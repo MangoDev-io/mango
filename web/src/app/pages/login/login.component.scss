@@ -1,25 +1,42 @@
-$lora-font: 'Lora', 'serif';
+$lora-font: "Lora", "serif";
 
 .login__container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 100vh;
 
-    font-family: $lora-font;
+  font-family: $lora-font;
 }
 
 .login__big-text {
-    font-size: 5rem;
+  font-size: 5rem;
+}
+
+.login__icon {
+  display: inline-flex;
+  align-self: center;
+}
+
+.login__icon img {
+  height: 1em;
+  width: 1em;
+  fill: currentColor;
+}
+
+.login__icon.baseline svg,
+.login__icon img {
+  top: 0.125em;
+  position: relative;
 }
 
 .login__input {
-    max-width: 67%;
+  max-width: 67%;
 }
 
 .login__button {
-    font-family: inherit;
-    margin-top: 10px;
+  font-family: inherit;
+  margin-top: 10px;
 }
