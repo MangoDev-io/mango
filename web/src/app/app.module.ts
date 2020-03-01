@@ -9,6 +9,7 @@ import { ManageComponent } from './pages/manage/manage.component';
 import { TokenListerComponent } from './components/token-lister/token-lister.component';
 import { TokenEntryComponent } from './components/token-entry/token-entry.component';
 import { TokenDetailsComponent } from './components/token-details/token-details.component';
+import { TokenCreateComponent } from './components/token-create/token-create.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { TokenDetailsComponent } from './components/token-details/token-details.
     ManageComponent,
     TokenListerComponent,
     TokenEntryComponent,
-    TokenDetailsComponent
+    TokenDetailsComponent,
+    TokenCreateComponent
   ],
   imports: [
     BrowserModule,

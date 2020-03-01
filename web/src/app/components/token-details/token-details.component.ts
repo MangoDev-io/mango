@@ -15,7 +15,7 @@ export class TokenDetailsComponent implements OnInit {
         100000000,
         15,
         false,
-        'https://usdtether.io',
+        'https://tether.to',
         'sdfsdf',
         '',
         '',
@@ -26,4 +26,8 @@ export class TokenDetailsComponent implements OnInit {
     constructor() {}
 
     ngOnInit(): void {}
+
+    shortenAddress(addr: string): string {
+        if (addr) return addr.substring(0, 10) + '. . .' + addr.substring(48)
+    }
 }

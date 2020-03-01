@@ -132,63 +132,93 @@
             <div
                 class="columns has-text-centered tokenDetails__manage-addresses-first"
             >
-                <div class="column is-one-third">
+                <div class="column">
                     <p class="is-size-5 is-pulled-right">
                         Creator Address:
                     </p>
                 </div>
                 <div class="column">
-                    <span class="tag is-dark is-medium is-pulled-left">{{
-                        currToken.creatorAddr
-                    }}</span>
+                    <a
+                        href="{{
+                            'https://testnet.algoexplorer.io/address/' +
+                                currToken.creatorAddr
+                        }}"
+                        ><span class="tag is-dark is-medium is-pulled-left">{{
+                            shortenAddress(currToken.creatorAddr)
+                        }}</span></a
+                    >
                 </div>
             </div>
             <div class="columns has-text-centered">
-                <div class="column is-one-third">
+                <div class="column">
                     <p class="is-size-5 is-pulled-right">
                         Manager Address:
                     </p>
                 </div>
                 <div class="column">
-                    <span class="tag is-dark is-medium is-pulled-left">{{
-                        currToken.managerAddr
-                    }}</span>
+                    <a
+                        href="{{
+                            'https://testnet.algoexplorer.io/address/' +
+                                currToken.managerAddr
+                        }}"
+                        ><span class="tag is-dark is-medium is-pulled-left">{{
+                            shortenAddress(currToken.managerAddr)
+                        }}</span></a
+                    >
                 </div>
             </div>
             <div class="columns has-text-centered">
-                <div class="column is-one-third">
+                <div class="column">
                     <p class="is-size-5 is-pulled-right">
                         Reserve Address:
                     </p>
                 </div>
                 <div class="column">
-                    <span class="tag is-dark is-medium is-pulled-left">{{
-                        currToken.reserveAddr
-                    }}</span>
+                    <a
+                        href="{{
+                            'https://testnet.algoexplorer.io/address/' +
+                                currToken.reserveAddr
+                        }}"
+                        ><span class="tag is-dark is-medium is-pulled-left">{{
+                            shortenAddress(currToken.reserveAddr)
+                        }}</span></a
+                    >
                 </div>
             </div>
             <div class="columns has-text-centered">
-                <div class="column is-one-third">
+                <div class="column">
                     <p class="is-size-5 is-pulled-right">
                         Freeze Address:
                     </p>
                 </div>
                 <div class="column">
-                    <span class="tag is-dark is-medium is-pulled-left">{{
-                        currToken.freezeAddr
-                    }}</span>
+                    <a
+                        href="{{
+                            'https://testnet.algoexplorer.io/address/' +
+                                currToken.freezeAddr
+                        }}"
+                        ><span class="tag is-dark is-medium is-pulled-left">{{
+                            shortenAddress(currToken.freezeAddr)
+                        }}</span></a
+                    >
                 </div>
             </div>
             <div class="columns has-text-centered">
-                <div class="column is-one-third">
+                <div class="column">
                     <p class="is-size-5 is-pulled-right">
                         Clawback Address:
                     </p>
                 </div>
                 <div class="column">
-                    <span class="tag is-dark is-medium is-pulled-left">{{
-                        currToken.clawbackAddr
-                    }}</span>
+                    <a
+                        href="{{
+                            'https://testnet.algoexplorer.io/address/' +
+                                currToken.clawbackAddr
+                        }}"
+                        ><span class="tag is-dark is-medium is-pulled-left">{{
+                            shortenAddress(currToken.clawbackAddr)
+                        }}</span></a
+                    >
                 </div>
             </div>
         </div>
