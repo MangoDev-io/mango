@@ -23,5 +23,15 @@ export class StateService {
 
     public tokenList: Token[] = [this.currToken, this.currToken, this.currToken]
 
+    private mnemonicPhrase: string
+
     constructor() {}
+
+    getMnemonic(): string {
+        return this.mnemonicPhrase
+    }
+
+    setMnemonic(mnemonic: string) {
+        this.mnemonicPhrase = mnemonic
+    }
 }

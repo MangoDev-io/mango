@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core'
+import { StateService } from 'src/app/state.service'
 
 @Component({
     selector: 'app-manage',
@@ -8,7 +9,11 @@ import { Component, OnInit } from '@angular/core'
 export class ManageComponent implements OnInit {
     public showTokenCreate = true
 
-    constructor() {}
+    public mnemonic: string
 
-    ngOnInit() {}
+    constructor(private stateService: StateService) {}
+
+    ngOnInit() {
+        this.mnemonic = this.stateService.getMnemonic()
+    }
 }
