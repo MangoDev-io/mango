@@ -2,10 +2,14 @@
     margin: 5px;
 }
 
+.token-entry__container:hover {
+    box-shadow: 0 0.5em 1em -0.125em rgba(hsl(0, 0%, 4%), 0.1), 0 0 0 2px #FEDC63
+}
+
 .token-entry__gradient {
     border-radius: 50%;
-    width: 50%;
-    padding-top: 50%;
+    width: 75%;
+    padding-top: 75%;
 }
 
 .token-entry__content h1 {
