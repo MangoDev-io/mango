@@ -37,7 +37,5 @@ export class TokenEntryComponent implements OnInit {
 
         // prettier-ignore
         this.gradient = "linear-gradient(" + angle + "deg, " + newColor1 + ", " + newColor2 + ")";
-
-        // document.getElementById(`token-entry__left--${this.token.name}`).style.background = gradient
     }
 }
