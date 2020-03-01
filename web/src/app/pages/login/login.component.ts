@@ -1,30 +1,25 @@
-import { Component, OnInit } from '@angular/core';
-import { Router }       from '@angular/router';
+import { Component, OnInit } from '@angular/core'
+import { Router } from '@angular/router'
+import { StateService } from 'src/app/state.service'
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+    selector: 'app-login',
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.scss'],
 })
-
 export class LoginComponent implements OnInit {
+    public mnemonic: string
 
-  public mnemonic: string;
+    constructor(private router: Router, private stateService: StateService) {}
 
-  constructor(
-    private router: Router,
-  ) { }
+    ngOnInit() {}
 
-  ngOnInit() {
-  }
-
-  loginClickHandler() {
-    if (!this.mnemonic) {
-      alert('Please enter the mnemonic');
-    } else {
-      console.log(this.mnemonic);
-      this.router.navigate(['/manage']);
+    loginClickHandler() {
+        if (!this.mnemonic) {
+            alert('Please enter the mnemonic')
+        } else {
+            this.stateService.setMnemonic(this.mnemonic)
+            this.router.navigate(['/manage'])
+        }
     }
-  }
-
 }

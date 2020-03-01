@@ -1,1 +1,209 @@
-<p>token-create works!</p>
+<div class="container">
+    <article class="message tokenCreate__message">
+        <div class="message-header">
+            <p>+ Create New Asset ({{ mnemonic }})</p>
+        </div>
+        <div class="message-body has-background-grey-lighter">
+            <div class="columns">
+                <div class="column is-half">
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Asset Name</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field tokenCreate">
+                                <div class="control">
+                                    <input
+                                        class="input"
+                                        type="text"
+                                        placeholder="e.g. USD Tether"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Total Issuance</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field tokenCreate">
+                                <div class="control">
+                                    <input
+                                        class="input"
+                                        type="text"
+                                        placeholder="e.g. 100000000"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="field is-horizontal">
+                        <div class="field-label">
+                            <label class="label">Default Frozen</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field tokenCreate">
+                                <div class="control">
+                                    <label class="radio">
+                                        <input type="radio" name="member" />
+                                        Yes
+                                    </label>
+                                    <label class="radio">
+                                        <input type="radio" name="member" />
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Metadata Hash</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field tokenCreate">
+                                <div class="control">
+                                    <input class="input" type="text" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-half">
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Unit Name</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field tokenCreate">
+                                <div class="control">
+                                    <input
+                                        class="input"
+                                        type="text"
+                                        placeholder="e.g. USDT"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">Decimals</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field tokenCreate">
+                                <div class="control">
+                                    <input
+                                        class="input"
+                                        type="text"
+                                        placeholder="e.g. 10"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="field is-horizontal">
+                        <div class="field-label is-normal">
+                            <label class="label">URL</label>
+                        </div>
+                        <div class="field-body">
+                            <div class="field tokenCreate">
+                                <div class="control">
+                                    <input
+                                        class="input"
+                                        type="text"
+                                        placeholder="e.g. https://tether.to/"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br /><br />
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label">Manager Address</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <input
+                                class="input"
+                                type="text"
+                                placeholder="e.g. 2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label">Reserve Address</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <input
+                                class="input"
+                                type="text"
+                                placeholder="e.g. 2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label">Freeze Address</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <input
+                                class="input"
+                                type="text"
+                                placeholder="e.g. 2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label class="label">Clawback Address</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <input
+                                class="input"
+                                type="text"
+                                placeholder="e.g. 2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="field is-grouped is-grouped-centered">
+                <p class="control">
+                    <a class="button is-warning">
+                        Submit
+                    </a>
+                </p>
+                <p class="control">
+                    <a class="button is-light">
+                        Cancel
+                    </a>
+                </p>
+            </div>
+        </div>
+    </article>
+</div>

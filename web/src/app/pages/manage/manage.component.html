@@ -10,7 +10,7 @@
         <div class="navbar-end">
             <div class="navbar-item">
                 <div class="buttons">
-                    <a class="button is-dark">
+                    <a class="button is-dark" routerLink="/login">
                         <strong>Logout</strong>
                     </a>
                 </div>
@@ -23,7 +23,11 @@
             <app-token-lister></app-token-lister>
         </div>
         <div class="column is-three-quarters">
-            <app-token-details></app-token-details>
+            <app-token-details *ngIf="!showTokenCreate"></app-token-details>
+            <app-token-create
+                [mnemonic]="mnemonic"
+                *ngIf="showTokenCreate"
+            ></app-token-create>
         </div>
     </div>
 </section>
