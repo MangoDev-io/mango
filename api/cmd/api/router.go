@@ -25,7 +25,7 @@ func NewRouterService(logger *logrus.Logger, db *data.DatabaseService, kmd *kmd.
 
 	router.Use(middleware.Logger, middleware.RedirectSlashes)
 
-	managerHandler := routes.NewManagerHandler(logger, db)
+	managerHandler := routes.NewManagerHandler(logger, db, kmd, algod)
 
 	router.Get("/", managerHandler.GetHello)
 
