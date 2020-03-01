@@ -1,4 +1,10 @@
 <section>
+    <!-- Create New Asset -->
+    <div class="box create-new__container">
+        <h1>CREATE NEW ASSET</h1>
+    </div>
+
+    <!-- Token List -->
     <div *ngFor="let token of stateSvc.tokenList" class="token__container">
         <app-token-entry [token]="token"></app-token-entry>
     </div>
