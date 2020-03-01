@@ -1,5 +1,6 @@
-import { Component, OnInit, Input } from '@angular/core'
+import { Component, OnInit, Input, ElementRef } from '@angular/core'
 import { Token } from 'src/app/model/token'
+import { StateService } from 'src/app/state.service'
 
 @Component({
     selector: 'app-token-entry',
@@ -10,12 +11,15 @@ export class TokenEntryComponent implements OnInit {
     @Input()
     public token: Token
 
+    @Input()
+    public entryId: any
+
     public gradient: string
 
-    constructor() {}
+    constructor(private stateService: StateService) {}
 
     ngOnInit() {
-        this.generateGradient();
+        this.generateGradient()
     }
 
     private generateGradient(): void {
@@ -37,5 +41,24 @@ export class TokenEntryComponent implements OnInit {
 
         // prettier-ignore
         this.gradient = "linear-gradient(" + angle + "deg, " + newColor1 + ", " + newColor2 + ")";
+    }
+
+    changeSelectedToken(): void {
+        this.stateService.setSelectedToken(this.token)
+        this.stateService.setShowCreateToken(false)
+        let entries = document.getElementsByClassName('token-entry__container')
+        for (let i = 0; i < entries.length; i++) {
+            entries[i].classList.remove('active')
+        }
+
+        let createNewEntries = document.getElementsByClassName(
+            'create-new__container'
+        )
+        for (let i = 0; i < createNewEntries.length; i++) {
+            createNewEntries[i].classList.remove('active')
+        }
+
+        let curEntry = document.getElementById(`tokenEntry__${this.entryId}`)
+        curEntry.firstElementChild.classList.add('active')
     }
 }

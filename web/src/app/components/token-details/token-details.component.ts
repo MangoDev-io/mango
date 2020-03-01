@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, Input } from '@angular/core'
 import { Token } from '../../model/token'
 
 @Component({
@@ -7,21 +7,8 @@ import { Token } from '../../model/token'
     styleUrls: ['./token-details.component.scss'],
 })
 export class TokenDetailsComponent implements OnInit {
-    public currToken = new Token(
-        '324234',
-        'BVMEUTF37WNEQ6GYCZISRFHGLEMOKT5OCPPTTJXVED6JBSXKF6YJJRZRI4',
-        'USD Tether',
-        'USDT',
-        100000000,
-        15,
-        false,
-        'https://tether.to',
-        'sdfsdf',
-        '',
-        '',
-        '',
-        ''
-    )
+    @Input()
+    currToken: Token
 
     constructor() {}
 

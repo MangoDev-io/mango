@@ -1,11 +1,18 @@
 <section>
     <!-- Create New Asset -->
-    <div class="box create-new__container">
+    <div class="box create-new__container" (click)="createNewAsset()">
         <h1>CREATE NEW ASSET</h1>
     </div>
 
     <!-- Token List -->
-    <div *ngFor="let token of stateSvc.tokenList" class="token__container">
-        <app-token-entry [token]="token"></app-token-entry>
+    <div
+        *ngFor="let token of stateService.tokenList; index as j"
+        class="token__container"
+    >
+        <app-token-entry
+            [token]="token"
+            [entryId]="j"
+            id="tokenEntry__{{ j }}"
+        ></app-token-entry>
     </div>
 </section>

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core'
 import { Token } from './model/token'
+import { BehaviorSubject, Observable } from 'rxjs'
 
 @Injectable({
     providedIn: 'root',
@@ -7,7 +8,7 @@ import { Token } from './model/token'
 export class StateService {
     public currToken = new Token(
         '324234',
-        'JHJBFDISFD43534534534FGDSGF',
+        '2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY',
         'USD Tether',
         'USDT',
         100000000,
@@ -25,7 +26,12 @@ export class StateService {
 
     private mnemonicPhrase: string
 
-    constructor() {}
+    private selectedTokenSubject = new BehaviorSubject<Token>(null)
+    private showCreateSubject = new BehaviorSubject<boolean>(false)
+
+    constructor() {
+        this.showCreateSubject.next(true)
+    }
 
     getMnemonic(): string {
         return this.mnemonicPhrase
@@ -33,5 +39,21 @@ export class StateService {
 
     setMnemonic(mnemonic: string) {
         this.mnemonicPhrase = mnemonic
+    }
+
+    getSelectedToken(): Observable<Token> {
+        return this.selectedTokenSubject.asObservable()
+    }
+
+    setSelectedToken(token: Token) {
+        this.selectedTokenSubject.next(token)
+    }
+
+    getShowCreateToken(): Observable<boolean> {
+        return this.showCreateSubject.asObservable()
+    }
+
+    setShowCreateToken(b: boolean) {
+        this.showCreateSubject.next(b)
     }
 }

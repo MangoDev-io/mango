@@ -23,7 +23,10 @@
             <app-token-lister></app-token-lister>
         </div>
         <div class="column is-three-quarters">
-            <app-token-details *ngIf="!showTokenCreate"></app-token-details>
+            <app-token-details
+                *ngIf="!showTokenCreate"
+                [currToken]="selectedToken"
+            ></app-token-details>
             <app-token-create
                 [mnemonic]="mnemonic"
                 *ngIf="showTokenCreate"
