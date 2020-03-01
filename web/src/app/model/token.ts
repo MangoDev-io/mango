@@ -3,7 +3,7 @@ export class Token {
     creatorAddr: string
     assetName: string
     unitName: string
-    total: number
+    totalIssuance: number
     decimals: number
     defaultFrozen: boolean
     url: string
@@ -18,7 +18,7 @@ export class Token {
         creatorAddr: string,
         assetName: string,
         unitName: string,
-        total: number,
+        totalIssuance: number,
         decimals: number,
         defaultFrozen: boolean,
         url: string,
@@ -32,7 +32,7 @@ export class Token {
         this.creatorAddr = creatorAddr
         this.assetName = assetName
         this.unitName = unitName
-        this.total = total
+        this.totalIssuance = totalIssuance
         this.decimals = decimals
         this.defaultFrozen = defaultFrozen
         this.url = url
