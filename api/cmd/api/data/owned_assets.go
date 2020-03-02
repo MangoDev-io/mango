@@ -6,7 +6,7 @@ func (s *DatabaseService) InsertNewAsset(addr, assetID string) error {
 	var record models.OwnedAssets
 	record.Address = addr
 
-	_, err := s.Model(record).
+	_, err := s.Model(&record).
 		Where("address = ?address").
 		Returning("*").
 		SelectOrInsert()
@@ -16,7 +16,10 @@ func (s *DatabaseService) InsertNewAsset(addr, assetID string) error {
 
 	record.AssetIds = append(record.AssetIds, assetID)
 
-	err = s.Update(record)
+	_, err = s.Model(&record).
+		Where("address = ?address").
+		Update()
+
 	if err != nil {
 		return err
 	}
@@ -26,8 +29,10 @@ func (s *DatabaseService) InsertNewAsset(addr, assetID string) error {
 
 func (s *DatabaseService) SelectAllAssetsForAddress(addr string) (*models.OwnedAssets, error) {
 	var record models.OwnedAssets
+	record.Address = addr
+
 	err := s.Model(&record).
-		Where("address = ?", addr).
+		Where("address = ?address").
 		Select()
 
 	if err != nil {
