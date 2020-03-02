@@ -39,6 +39,28 @@ func (h *ManagerHandler) GetHello(rw http.ResponseWriter, req *http.Request) {
 	rw.Write([]byte("{ message: 'it works' }"))
 }
 
+func (h *ManagerHandler) GetAssets(rw http.ResponseWriter, req *http.Request) {
+	body, _ := ioutil.ReadAll(req.Body)
+
+	type getAssetReq struct {
+		Address string `json:"address"`
+	}
+
+	var request getAssetReq
+	_ = json.Unmarshal(body, &request)
+
+	ownedassets, err := h.db.SelectAllAssetsForAddress(request.Address)
+	if err != nil {
+		h.log.WithError(err).Error("cabnnot select")
+	}
+	h.log.Info(ownedassets.AssetIds)
+
+	jsonResp, _ := json.Marshal(ownedassets)
+
+	rw.Header().Set("Content-Type", "application/json")
+	rw.Write(jsonResp)
+}
+
 func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) {
 	body, err := ioutil.ReadAll(req.Body)
 

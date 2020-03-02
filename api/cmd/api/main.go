@@ -53,6 +53,12 @@ func main() {
 	databaseService := data.NewDatabaseService(config.DatabaseConfig).WaitUntilReady()
 	logger.Info("Connected to database...")
 
+	err = databaseService.Instantiate()
+	if err != nil {
+		logger.WithError(err).Panic("failed to instantiate database")
+	}
+	logger.Info("Instantiated database...")
+
 	// Setup Algod Client
 	var headers []*algod.Header
 	headers = append(headers, &algod.Header{"X-API-Key", config.PSToken})

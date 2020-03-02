@@ -20,7 +20,7 @@ services:
     image: postgres:9.6.1
     environment:
       - POSTGRES_USER=docker
-      - POSTGRES_PASSWORD=docker
-      - POSTGRES_DB=extremelySAFUPassword
+      - POSTGRES_PASSWORD=extremelySAFUPassword
+      - POSTGRES_DB=docker
     ports:
       - "5432:5432"
