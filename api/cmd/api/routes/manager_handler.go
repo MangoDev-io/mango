@@ -86,35 +86,7 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	// Create CreateAsset Transaction
-	txnParams, err := h.algod.SuggestedParams()
-	note := []byte(nil)
-
-	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
-
-	txn, err := transaction.MakeAssetCreateTxn(assetDetails.CreatorAddr, txnParams.Fee, txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.TotalIssuance, assetDetails.Decimals, assetDetails.DefaultFrozen, assetDetails.ManagerAddr, assetDetails.ReserveAddr, assetDetails.FreezeAddr, assetDetails.ClawbackAddr, assetDetails.UnitName, assetDetails.AssetName, assetDetails.URL, assetDetails.MetaDataHash)
-
-	if err != nil {
-		h.log.WithError(err).Error("Failed to make asset")
-		return
-	}
-	h.log.Debugf("Asset created AssetName: %s", txn.AssetConfigTxnFields.AssetParams.AssetName)
-
-	txid, stx, err := crypto.SignTransaction(privateKey, txn)
-	if err != nil {
-		h.log.WithError(err).Error("Failed to sign transaction")
-		return
-	}
-	h.log.Debugf("Transaction ID: %s", txid)
-	// Broadcast the transaction to the network
-	sendResponse, err := h.algod.SendRawTransaction(stx, &algod.Header{Key: "Content-Type", Value: "application/x-binary"})
-	if err != nil {
-		h.log.WithError(err).Error("failed to send transaction")
-		return
-	}
-
-	// Wait for transaction to be confirmed
-	h.waitForConfirmation(h.algod, sendResponse.TxID)
+	h.makeAndSendAssetCreateTxn(assetDetails, privateKey)
 
 	// Retrieve asset ID by grabbing the max asset ID
 	// from the creator account's holdings.
@@ -201,4 +173,37 @@ func (h *ManagerHandler) getPrivateKeyFromMnemonic(accountMnemonic string) (ed25
 	h.log.Debugf("Account Successfully Imported: %s", importedAccount)
 
 	return privateKey, nil
+}
+
+func (h *ManagerHandler) makeAndSendAssetCreateTxn(assetDetails models.AssetCreate, privateKey ed25519.PrivateKey) {
+
+	// Create CreateAsset Transaction
+	txnParams, err := h.algod.SuggestedParams()
+	note := []byte(nil)
+
+	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
+
+	txn, err := transaction.MakeAssetCreateTxn(assetDetails.CreatorAddr, txnParams.Fee, txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.TotalIssuance, assetDetails.Decimals, assetDetails.DefaultFrozen, assetDetails.ManagerAddr, assetDetails.ReserveAddr, assetDetails.FreezeAddr, assetDetails.ClawbackAddr, assetDetails.UnitName, assetDetails.AssetName, assetDetails.URL, assetDetails.MetaDataHash)
+
+	if err != nil {
+		h.log.WithError(err).Error("Failed to make asset")
+		return
+	}
+	h.log.Debugf("Asset created AssetName: %s", txn.AssetConfigTxnFields.AssetParams.AssetName)
+
+	txid, stx, err := crypto.SignTransaction(privateKey, txn)
+	if err != nil {
+		h.log.WithError(err).Error("Failed to sign transaction")
+		return
+	}
+	h.log.Debugf("Transaction ID: %s", txid)
+	// Broadcast the transaction to the network
+	sendResponse, err := h.algod.SendRawTransaction(stx, &algod.Header{Key: "Content-Type", Value: "application/x-binary"})
+	if err != nil {
+		h.log.WithError(err).Error("failed to send transaction")
+		return
+	}
+
+	// Wait for transaction to be confirmed
+	h.waitForConfirmation(h.algod, sendResponse.TxID)
 }
