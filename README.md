@@ -22,6 +22,14 @@ To start and stop `kmd` (from within the node directory):
 ./goal kmd stop -d <datadir>
 ```
 
+Create a wallet with `goal`
+
+```
+./goal wallet new TestWallet -d data
+```
+
+Be sure to replace the constants in `api/cmd/api/constants/constants.go` with your wallet information!
+
 Run the following commands to start the project from the root dir:
 
 ```
