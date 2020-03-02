@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"github.com/algorand/go-algorand-sdk/client/algod"
 	"github.com/algorand/go-algorand-sdk/client/kmd"
@@ -86,7 +87,12 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	h.makeAndSendAssetCreateTxn(assetDetails, privateKey)
+	txID, err := h.makeAndSendAssetCreateTxn(assetDetails, privateKey)
+	if err != nil {
+		h.log.WithError(err).Error("failed to make and send asset create txn")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	// Retrieve asset ID by grabbing the max asset ID
 	// from the creator account's holdings.
@@ -106,11 +112,19 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 	assetInfo, err := h.algod.AssetInformation(assetID)
 	h.log.Debugf("Asset info: %#v", assetInfo)
 
-	type response struct {
-		AssetID uint64 `json:"assetId"`
+	err = h.db.InsertNewAsset(assetDetails.CreatorAddr, strconv.FormatUint(assetID, 10))
+	if err != nil {
+		h.log.WithError(err).Error("failed to insert new asset in database")
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
-	resp := response{AssetID: assetID}
+	type response struct {
+		AssetID uint64 `json:"assetId"`
+		TXHash  string `json:"txHash"`
+	}
+
+	resp := response{AssetID: assetID, TXHash: txID}
 	respJSON, err := json.Marshal(resp)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -175,7 +189,7 @@ func (h *ManagerHandler) getPrivateKeyFromMnemonic(accountMnemonic string) (ed25
 	return privateKey, nil
 }
 
-func (h *ManagerHandler) makeAndSendAssetCreateTxn(assetDetails models.AssetCreate, privateKey ed25519.PrivateKey) {
+func (h *ManagerHandler) makeAndSendAssetCreateTxn(assetDetails models.AssetCreate, privateKey ed25519.PrivateKey) (string, error) {
 
 	// Create CreateAsset Transaction
 	txnParams, err := h.algod.SuggestedParams()
@@ -187,23 +201,25 @@ func (h *ManagerHandler) makeAndSendAssetCreateTxn(assetDetails models.AssetCrea
 
 	if err != nil {
 		h.log.WithError(err).Error("Failed to make asset")
-		return
+		return "", err
 	}
 	h.log.Debugf("Asset created AssetName: %s", txn.AssetConfigTxnFields.AssetParams.AssetName)
 
 	txid, stx, err := crypto.SignTransaction(privateKey, txn)
 	if err != nil {
 		h.log.WithError(err).Error("Failed to sign transaction")
-		return
+		return "", err
 	}
 	h.log.Debugf("Transaction ID: %s", txid)
 	// Broadcast the transaction to the network
 	sendResponse, err := h.algod.SendRawTransaction(stx, &algod.Header{Key: "Content-Type", Value: "application/x-binary"})
 	if err != nil {
 		h.log.WithError(err).Error("failed to send transaction")
-		return
+		return "", err
 	}
 
 	// Wait for transaction to be confirmed
 	h.waitForConfirmation(h.algod, sendResponse.TxID)
+
+	return sendResponse.TxID, nil
 }
