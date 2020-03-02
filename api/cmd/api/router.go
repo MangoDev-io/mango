@@ -28,6 +28,7 @@ func NewRouterService(logger *logrus.Logger, db *data.DatabaseService, kmd *kmd.
 	managerHandler := routes.NewManagerHandler(logger, db, kmd, algod)
 
 	router.Get("/", managerHandler.GetHello)
+	router.Post("/createAsset", managerHandler.CreateAsset)
 
 	service := &Router{router, logger, db, kmd, algod}
 	return service

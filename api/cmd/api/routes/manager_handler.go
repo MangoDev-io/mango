@@ -1,8 +1,8 @@
 package routes
 
 import (
+	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -60,7 +60,7 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 	// Get the list of wallets
 	listResponse, err := h.kmd.ListWallets()
 	if err != nil {
-		h.log.WithError(err).Error("error listing wallets: %s\n")
+		h.log.WithError(err).Error("error listing wallets")
 		return
 	}
 
@@ -68,7 +68,7 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 	var walletID string
 	for _, wallet := range listResponse.Wallets {
 		if wallet.Name == constants.TestWalletName {
-			h.log.Info("Got Wallet '%s' with ID: %s\n", wallet.Name, wallet.ID)
+			h.log.Debugf("Got Wallet '%s' with ID: %s", wallet.Name, wallet.ID)
 			walletID = wallet.ID
 		}
 	}
@@ -80,38 +80,40 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	h.log.Info("Account Mnemonic: %s\n", constants.TestAccountMnemonic)
+	h.log.Debugf("Account Mnemonic: %s", constants.TestAccountMnemonic)
 	privateKey, err := mnemonic.ToPrivateKey(constants.TestAccountMnemonic)
 	importedAccount, err := h.kmd.ImportKey(initResponse.WalletHandleToken, privateKey)
-	h.log.Info("Account Sucessfully Imported: ", importedAccount)
+	h.log.Debugf("Account Successfully Imported: %s", importedAccount)
 
 	// Create CreateAsset Transaction
 	txnParams, err := h.algod.SuggestedParams()
 	note := []byte(nil)
 
-	txn, err := transaction.MakeAssetCreateTxn(assetDetails.CreatorAddr, txnParams.Fee, txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, string(txnParams.GenesisHash), assetDetails.TotalIssuance, assetDetails.Decimals, assetDetails.DefaultFrozen, assetDetails.ManagerAddr, assetDetails.ReserveAddr, assetDetails.FreezeAddr, assetDetails.ClawbackAddr, assetDetails.UnitName, assetDetails.AssetName, assetDetails.URL, assetDetails.MetaDataHash)
+	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
+
+	txn, err := transaction.MakeAssetCreateTxn(assetDetails.CreatorAddr, txnParams.Fee, txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.TotalIssuance, assetDetails.Decimals, assetDetails.DefaultFrozen, assetDetails.ManagerAddr, assetDetails.ReserveAddr, assetDetails.FreezeAddr, assetDetails.ClawbackAddr, assetDetails.UnitName, assetDetails.AssetName, assetDetails.URL, assetDetails.MetaDataHash)
 
 	if err != nil {
 		h.log.WithError(err).Error("Failed to make asset")
 		return
 	}
-	h.log.Info("Asset created AssetName: %s\n", txn.AssetConfigTxnFields.AssetParams.AssetName)
+	h.log.Debugf("Asset created AssetName: %s", txn.AssetConfigTxnFields.AssetParams.AssetName)
 
 	txid, stx, err := crypto.SignTransaction(privateKey, txn)
 	if err != nil {
 		h.log.WithError(err).Error("Failed to sign transaction")
 		return
 	}
-	h.log.Info("Transaction ID: %s\n", txid)
+	h.log.Debugf("Transaction ID: %s", txid)
 	// Broadcast the transaction to the network
-	sendResponse, err := h.algod.SendRawTransaction(stx)
+	sendResponse, err := h.algod.SendRawTransaction(stx, &algod.Header{Key: "Content-Type", Value: "application/x-binary"})
 	if err != nil {
 		h.log.WithError(err).Error("failed to send transaction")
 		return
 	}
 
 	// Wait for transaction to be confirmed
-	waitForConfirmation(h.algod, sendResponse.TxID)
+	h.waitForConfirmation(h.algod, sendResponse.TxID)
 
 	// Retrieve asset ID by grabbing the max asset ID
 	// from the creator account's holdings.
@@ -126,26 +128,41 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 			assetID = i
 		}
 	}
-	h.log.Infof("Asset ID from AssetParams: %d\n", assetID)
+	h.log.Debugf("Asset ID from AssetParams: %d", assetID)
 	// Retrieve asset info.
 	assetInfo, err := h.algod.AssetInformation(assetID)
-	h.log.Infof("Asset info: %#v\n", assetInfo)
+	h.log.Debugf("Asset info: %#v", assetInfo)
+
+	type response struct {
+		AssetID uint64 `json:"assetId"`
+	}
+
+	resp := response{AssetID: assetID}
+	respJSON, err := json.Marshal(resp)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	rw.Header().Set("Content-Type", "application/json")
+	rw.Write(respJSON)
+
 }
 
-func waitForConfirmation(algodClient *algod.Client, txID string) {
+func (h *ManagerHandler) waitForConfirmation(algodClient *algod.Client, txID string) {
 	for {
 		pt, err := algodClient.PendingTransactionInformation(txID)
 		if err != nil {
-			fmt.Printf("waiting for confirmation... (pool error, if any): %s\n", err)
+			h.log.WithError(err).Error("waiting for confirmation... (pool error, if any)")
 			continue
 		}
 		if pt.ConfirmedRound > 0 {
-			fmt.Printf("Transaction "+pt.TxID+" confirmed in round %d\n", pt.ConfirmedRound)
+			h.log.Debugf("Transaction "+pt.TxID+" confirmed in round %d", pt.ConfirmedRound)
 			break
 		}
 		nodeStatus, err := algodClient.Status()
 		if err != nil {
-			fmt.Printf("error getting algod status: %s\n", err)
+			h.log.WithError(err).Error("error getting algod status")
 			return
 		}
 		algodClient.StatusAfterBlock(nodeStatus.LastRound + 1)
