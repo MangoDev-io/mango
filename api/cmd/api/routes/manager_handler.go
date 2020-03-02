@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"crypto/ed25519"
 	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
@@ -56,34 +57,12 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	// Import Account from Account Mnemonic --------------------------------------
-	// Get the list of wallets
-	listResponse, err := h.kmd.ListWallets()
+	privateKey, err := h.getPrivateKeyFromMnemonic(constants.TestAccountMnemonic)
 	if err != nil {
-		h.log.WithError(err).Error("error listing wallets")
+		h.log.WithError(err).Error("failed to get private key from mnemonic")
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	// Find our wallet name in the list
-	var walletID string
-	for _, wallet := range listResponse.Wallets {
-		if wallet.Name == constants.TestWalletName {
-			h.log.Debugf("Got Wallet '%s' with ID: %s", wallet.Name, wallet.ID)
-			walletID = wallet.ID
-		}
-	}
-
-	// Get a wallet handle
-	initResponse, err := h.kmd.InitWalletHandle(walletID, constants.TestWalletPassword)
-	if err != nil {
-		h.log.WithError(err).Error("Error initializing wallet handle")
-		return
-	}
-
-	h.log.Debugf("Account Mnemonic: %s", constants.TestAccountMnemonic)
-	privateKey, err := mnemonic.ToPrivateKey(constants.TestAccountMnemonic)
-	importedAccount, err := h.kmd.ImportKey(initResponse.WalletHandleToken, privateKey)
-	h.log.Debugf("Account Successfully Imported: %s", importedAccount)
 
 	// Create CreateAsset Transaction
 	txnParams, err := h.algod.SuggestedParams()
@@ -167,4 +146,37 @@ func (h *ManagerHandler) waitForConfirmation(algodClient *algod.Client, txID str
 		}
 		algodClient.StatusAfterBlock(nodeStatus.LastRound + 1)
 	}
+}
+
+func (h *ManagerHandler) getPrivateKeyFromMnemonic(accountMnemonic string) (ed25519.PrivateKey, error) {
+	// Import Account from Account Mnemonic --------------------------------------
+	// Get the list of wallets
+	listResponse, err := h.kmd.ListWallets()
+	if err != nil {
+		h.log.WithError(err).Error("error listing wallets")
+		return nil, err
+	}
+
+	// Find our wallet name in the list
+	var walletID string
+	for _, wallet := range listResponse.Wallets {
+		if wallet.Name == constants.TestWalletName {
+			h.log.Debugf("Got Wallet '%s' with ID: %s", wallet.Name, wallet.ID)
+			walletID = wallet.ID
+		}
+	}
+
+	// Get a wallet handle
+	initResponse, err := h.kmd.InitWalletHandle(walletID, constants.TestWalletPassword)
+	if err != nil {
+		h.log.WithError(err).Error("Error initializing wallet handle")
+		return nil, err
+	}
+
+	h.log.Debugf("Account Mnemonic: %s", accountMnemonic)
+	privateKey, err := mnemonic.ToPrivateKey(accountMnemonic)
+	importedAccount, err := h.kmd.ImportKey(initResponse.WalletHandleToken, privateKey)
+	h.log.Debugf("Account Successfully Imported: %s", importedAccount)
+
+	return privateKey, nil
 }
