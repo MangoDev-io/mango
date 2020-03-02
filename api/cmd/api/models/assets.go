@@ -15,9 +15,3 @@ type AssetCreate struct {
 	FreezeAddr    string `json:"freezeAddr"`
 	ClawbackAddr  string `json:"clawbackAddr"`
 }
-
-// AssetDetails contains details of an asset
-type AssetDetails struct {
-	AssetID string `json:"assetId"`
-	AssetCreate
-}
