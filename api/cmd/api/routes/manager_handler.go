@@ -27,6 +27,11 @@ type ManagerHandler struct {
 	algod *algod.Client
 }
 
+type response struct {
+	AssetID uint64 `json:"assetId"`
+	TXHash  string `json:"txHash"`
+}
+
 func NewManagerHandler(log *logrus.Logger, db *data.DatabaseService, kmd *kmd.Client, algod *algod.Client) *ManagerHandler {
 	return &ManagerHandler{
 		log:   log,
@@ -80,12 +85,14 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	privateKey, err := h.getPrivateKeyFromMnemonic(constants.TestAccountMnemonic)
+	privateKey, address, err := h.getPrivKeyAndAddressFromMnemonic(constants.TestAccountMnemonic)
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	assetDetails.CreatorAddr = address
 
 	txID, err := h.makeAndSendAssetCreateTxn(assetDetails, privateKey)
 	if err != nil {
@@ -119,11 +126,6 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	type response struct {
-		AssetID uint64 `json:"assetId"`
-		TXHash  string `json:"txHash"`
-	}
-
 	resp := response{AssetID: assetID, TXHash: txID}
 	respJSON, err := json.Marshal(resp)
 	if err != nil {
@@ -133,7 +135,75 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 
 	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(respJSON)
+}
 
+func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request) {
+	body, err := ioutil.ReadAll(req.Body)
+
+	if err != nil {
+		h.log.WithError(err).Error("unable to read request body")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	var assetDetails models.AssetDestroy
+
+	err = json.Unmarshal(body, &assetDetails)
+
+	if err != nil {
+		h.log.WithError(err).Error("unable to unmarshal request into JSON")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	privateKey, managerAddr, err := h.getPrivKeyAndAddressFromMnemonic(constants.TestAccountMnemonic)
+	if err != nil {
+		h.log.WithError(err).Error("failed to get private key from mnemonic")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	txnParams, err := h.algod.SuggestedParams()
+	note := []byte(nil)
+	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
+
+	txn, err := transaction.MakeAssetDestroyTxn(managerAddr, txnParams.Fee,
+		txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID)
+
+	if err != nil {
+		h.log.WithError(err).Error("failed to send txn")
+		return
+	}
+
+	txid, stx, err := crypto.SignTransaction(privateKey, txn)
+	if err != nil {
+		h.log.WithError(err).Error("Failed to sign transaction")
+		return
+	}
+	h.log.Debugf("Transaction ID: %s", txid)
+	// Broadcast the transaction to the network
+	sendResponse, err := h.algod.SendRawTransaction(stx, &algod.Header{Key: "Content-Type", Value: "application/x-binary"})
+	if err != nil {
+		h.log.WithError(err).Error("failed to send transaction")
+		return
+	}
+	h.log.Infof("Transaction ID raw: %s", sendResponse.TxID)
+	// Wait for transaction to be confirmed
+	h.waitForConfirmation(h.algod, sendResponse.TxID)
+
+	// Delete current address from wallet
+	err = h.deleteAddressFromWallet(managerAddr)
+	if err != nil {
+		h.log.WithError(err).Error("Error deleting address from wallet")
+	}
+
+	// Retrieve asset info. This should now throw an error.
+	// assetInfo, err := h.algod.AssetInformation(assetID, txHeaders...)
+	// if err != nil {
+	// 	fmt.Printf("%s\n", err)
+	// }
+
+	h.log.Info("Transaction ID: ", sendResponse.TxID)
 }
 
 func (h *ManagerHandler) waitForConfirmation(algodClient *algod.Client, txID string) {
@@ -156,13 +226,14 @@ func (h *ManagerHandler) waitForConfirmation(algodClient *algod.Client, txID str
 	}
 }
 
-func (h *ManagerHandler) getPrivateKeyFromMnemonic(accountMnemonic string) (ed25519.PrivateKey, error) {
+// Wallet Helper Functions ---- // TODO - MAKE WALLETID A GLOBAL VARIABLE
+func (h *ManagerHandler) getPrivKeyAndAddressFromMnemonic(accountMnemonic string) (ed25519.PrivateKey, string, error) {
 	// Import Account from Account Mnemonic --------------------------------------
 	// Get the list of wallets
 	listResponse, err := h.kmd.ListWallets()
 	if err != nil {
-		h.log.WithError(err).Error("error listing wallets")
-		return nil, err
+		h.log.WithError(err).Error("error listing wallets when importing mnemonic")
+		return nil, "", err
 	}
 
 	// Find our wallet name in the list
@@ -178,7 +249,7 @@ func (h *ManagerHandler) getPrivateKeyFromMnemonic(accountMnemonic string) (ed25
 	initResponse, err := h.kmd.InitWalletHandle(walletID, constants.TestWalletPassword)
 	if err != nil {
 		h.log.WithError(err).Error("Error initializing wallet handle")
-		return nil, err
+		return nil, "", err
 	}
 
 	h.log.Debugf("Account Mnemonic: %s", accountMnemonic)
@@ -186,7 +257,32 @@ func (h *ManagerHandler) getPrivateKeyFromMnemonic(accountMnemonic string) (ed25
 	importedAccount, err := h.kmd.ImportKey(initResponse.WalletHandleToken, privateKey)
 	h.log.Debugf("Account Successfully Imported: %s", importedAccount)
 
-	return privateKey, nil
+	return privateKey, importedAccount.Address, nil
+}
+
+func (h *ManagerHandler) deleteAddressFromWallet(address string) error {
+	listResponse, err := h.kmd.ListWallets()
+	if err != nil {
+		h.log.WithError(err).Error("error listing wallets when deleting")
+		return err
+	}
+
+	var walletID string
+	for _, wallet := range listResponse.Wallets {
+		if wallet.Name == constants.TestWalletName {
+			h.log.Debugf("Got Wallet '%s' with ID: %s", wallet.Name, wallet.ID)
+			walletID = wallet.ID
+		}
+	}
+
+	initResponse, err := h.kmd.InitWalletHandle(walletID, constants.TestWalletPassword)
+	if err != nil {
+		h.log.WithError(err).Error("Error initializing wallet handle")
+		return err
+	}
+
+	h.kmd.DeleteKey(initResponse.WalletHandleToken, constants.TestWalletPassword, address)
+	return nil
 }
 
 func (h *ManagerHandler) makeAndSendAssetCreateTxn(assetDetails models.AssetCreate, privateKey ed25519.PrivateKey) (string, error) {
@@ -194,7 +290,6 @@ func (h *ManagerHandler) makeAndSendAssetCreateTxn(assetDetails models.AssetCrea
 	// Create CreateAsset Transaction
 	txnParams, err := h.algod.SuggestedParams()
 	note := []byte(nil)
-
 	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
 
 	txn, err := transaction.MakeAssetCreateTxn(assetDetails.CreatorAddr, txnParams.Fee, txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.TotalIssuance, assetDetails.Decimals, assetDetails.DefaultFrozen, assetDetails.ManagerAddr, assetDetails.ReserveAddr, assetDetails.FreezeAddr, assetDetails.ClawbackAddr, assetDetails.UnitName, assetDetails.AssetName, assetDetails.URL, assetDetails.MetaDataHash)
@@ -220,6 +315,11 @@ func (h *ManagerHandler) makeAndSendAssetCreateTxn(assetDetails models.AssetCrea
 
 	// Wait for transaction to be confirmed
 	h.waitForConfirmation(h.algod, sendResponse.TxID)
+
+	err = h.deleteAddressFromWallet(assetDetails.CreatorAddr)
+	if err != nil {
+		h.log.WithError(err).Error("Error deleting address from wallet")
+	}
 
 	return sendResponse.TxID, nil
 }

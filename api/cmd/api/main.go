@@ -23,7 +23,7 @@ func main() {
 
 	logrus.SetOutput(os.Stdout)
 
-	logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetLevel(logrus.TraceLevel)
 
 	retCode := 0
 
