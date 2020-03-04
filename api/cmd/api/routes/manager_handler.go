@@ -101,6 +101,11 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
+	err = h.deleteAddressFromWallet(assetDetails.CreatorAddr)
+	if err != nil {
+		h.log.WithError(err).Error("Error deleting address from wallet")
+	}
+
 	// Retrieve asset ID by grabbing the max asset ID
 	// from the creator account's holdings.
 	act, err := h.algod.AccountInformation(constants.TestAccountPublicKey)
@@ -163,33 +168,15 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	txnParams, err := h.algod.SuggestedParams()
-	note := []byte(nil)
-	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
+	assetDetails.ManagerAddr = managerAddr
 
-	txn, err := transaction.MakeAssetDestroyTxn(managerAddr, txnParams.Fee,
-		txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID)
-
+	txID, err := h.makeAndSendAssetDestroyTxn(assetDetails, privateKey)
 	if err != nil {
-		h.log.WithError(err).Error("failed to send txn")
+		h.log.WithError(err).Error("failed to make and send asset create txn")
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	txid, stx, err := crypto.SignTransaction(privateKey, txn)
-	if err != nil {
-		h.log.WithError(err).Error("Failed to sign transaction")
-		return
-	}
-	h.log.Debugf("Transaction ID: %s", txid)
-	// Broadcast the transaction to the network
-	sendResponse, err := h.algod.SendRawTransaction(stx, &algod.Header{Key: "Content-Type", Value: "application/x-binary"})
-	if err != nil {
-		h.log.WithError(err).Error("failed to send transaction")
-		return
-	}
-	h.log.Infof("Transaction ID raw: %s", sendResponse.TxID)
-	// Wait for transaction to be confirmed
-	h.waitForConfirmation(h.algod, sendResponse.TxID)
+	h.log.Debug("Transaction ID: ", txID)
 
 	// Delete current address from wallet
 	err = h.deleteAddressFromWallet(managerAddr)
@@ -203,7 +190,15 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 	// 	fmt.Printf("%s\n", err)
 	// }
 
-	h.log.Info("Transaction ID: ", sendResponse.TxID)
+	resp := response{AssetID: 0, TXHash: txID}
+	respJSON, err := json.Marshal(resp)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	rw.Header().Set("Content-Type", "application/json")
+	rw.Write(respJSON)
 }
 
 func (h *ManagerHandler) waitForConfirmation(algodClient *algod.Client, txID string) {
@@ -316,10 +311,37 @@ func (h *ManagerHandler) makeAndSendAssetCreateTxn(assetDetails models.AssetCrea
 	// Wait for transaction to be confirmed
 	h.waitForConfirmation(h.algod, sendResponse.TxID)
 
-	err = h.deleteAddressFromWallet(assetDetails.CreatorAddr)
+	return sendResponse.TxID, nil
+}
+
+func (h *ManagerHandler) makeAndSendAssetDestroyTxn(assetDetails models.AssetDestroy, privateKey ed25519.PrivateKey) (string, error) {
+	txnParams, err := h.algod.SuggestedParams()
+	note := []byte(nil)
+	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
+
+	txn, err := transaction.MakeAssetDestroyTxn(assetDetails.ManagerAddr, txnParams.Fee,
+		txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID)
+
 	if err != nil {
-		h.log.WithError(err).Error("Error deleting address from wallet")
+		h.log.WithError(err).Error("failed to send txn")
+		return "", err
 	}
+
+	txid, stx, err := crypto.SignTransaction(privateKey, txn)
+	if err != nil {
+		h.log.WithError(err).Error("Failed to sign transaction")
+		return "", err
+	}
+	h.log.Debugf("Transaction ID: %s", txid)
+	// Broadcast the transaction to the network
+	sendResponse, err := h.algod.SendRawTransaction(stx, &algod.Header{Key: "Content-Type", Value: "application/x-binary"})
+	if err != nil {
+		h.log.WithError(err).Error("failed to send transaction")
+		return "", err
+	}
+	h.log.Infof("Transaction ID raw: %s", sendResponse.TxID)
+	// Wait for transaction to be confirmed
+	h.waitForConfirmation(h.algod, sendResponse.TxID)
 
 	return sendResponse.TxID, nil
 }

@@ -18,5 +18,6 @@ type AssetCreate struct {
 
 // AssetDestroy is the structure receieved from the web for destroying an asset
 type AssetDestroy struct {
-	AssetID uint64 `json:"assetId"`
+	AssetID     uint64 `json:"assetId"`
+	ManagerAddr string `json:"managerAddr"`
 }
