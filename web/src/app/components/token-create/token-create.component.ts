@@ -1,4 +1,6 @@
-import { Component, OnInit, Input } from '@angular/core'
+import { Component, OnInit } from '@angular/core'
+import { AssetCreate } from 'src/app/asset-create'
+import { StateService } from 'src/app/state.service'
 
 @Component({
     selector: 'app-token-create',
@@ -6,12 +8,16 @@ import { Component, OnInit, Input } from '@angular/core'
     styleUrls: ['./token-create.component.scss'],
 })
 export class TokenCreateComponent implements OnInit {
-    public currentAddr =
-        'BVMEUTF37WNEQ6GYCZISRFHGLEMOKT5OCPPTTJXVED6JBSXKF6YJJRZRI4'
+    private assetCreate = new AssetCreate()
 
-    @Input()
-    public mnemonic: string
-    constructor() {}
+    constructor(private stateService: StateService) {}
 
     ngOnInit(): void {}
+
+    createAsset() {
+        console.log(JSON.stringify(this.assetCreate))
+        this.stateService.createAsset(this.assetCreate).subscribe(x => {
+            console.log(x)
+        })
+    }
 }

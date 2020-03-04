@@ -9,8 +9,6 @@ import { Token } from 'src/app/model/token'
     styleUrls: ['./manage.component.scss'],
 })
 export class ManageComponent implements OnInit {
-    public mnemonic: string
-
     private showTokenSubscription: Subscription
     private selectedTokenSubscription: Subscription
 
@@ -31,7 +29,5 @@ export class ManageComponent implements OnInit {
             })
     }
 
-    ngOnInit() {
-        this.mnemonic = this.stateService.getMnemonic()
-    }
+    ngOnInit() {}
 }

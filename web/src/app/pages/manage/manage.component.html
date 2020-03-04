@@ -27,10 +27,7 @@
                 *ngIf="!showTokenCreate"
                 [currToken]="selectedToken"
             ></app-token-details>
-            <app-token-create
-                [mnemonic]="mnemonic"
-                *ngIf="showTokenCreate"
-            ></app-token-create>
+            <app-token-create *ngIf="showTokenCreate"></app-token-create>
         </div>
     </div>
 </section>

@@ -48,9 +48,9 @@ func NewManagerHandler(log *logrus.Logger, db *data.DatabaseService, kmd *kmd.Cl
 	}
 }
 
-// EncryptMnemonic accepts JSON body of the form { "mnemonic" : "abcd" }
+// EncodeMnemonic accepts JSON body of the form { "mnemonic" : "abcd" }
 // and converts it into a JWT and send it to web
-func (h *ManagerHandler) EncryptMnemonic(rw http.ResponseWriter, req *http.Request) {
+func (h *ManagerHandler) EncodeMnemonic(rw http.ResponseWriter, req *http.Request) {
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		h.log.WithError(err).Error("failed to read body")
@@ -150,6 +150,7 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 	err = json.Unmarshal(body, &assetDetails)
 
 	if err != nil {
+		h.log.WithError(err).Error("failed to unmarshal body")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -189,6 +190,7 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 	act, err := h.algod.AccountInformation(constants.TestAccountPublicKey)
 	if err != nil {
 		h.log.WithError(err).Error("failed to get account information")
+		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	assetID := uint64(0)

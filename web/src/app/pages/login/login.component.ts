@@ -18,8 +18,15 @@ export class LoginComponent implements OnInit {
         if (!this.mnemonic) {
             alert('Please enter the mnemonic')
         } else {
-            this.stateService.setMnemonic(this.mnemonic)
-            this.router.navigate(['/manage'])
+            this.stateService.encodeMnemonic(this.mnemonic).subscribe(
+                (x: any) => {
+                    this.stateService.setAuthToken(x.token)
+                    this.router.navigate(['/manage'])
+                },
+                err => {
+                    console.log(err)
+                }
+            )
         }
     }
 }

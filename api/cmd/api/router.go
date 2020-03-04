@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/algorand/go-algorand-sdk/client/algod"
 	"github.com/algorand/go-algorand-sdk/client/kmd"
+	"github.com/go-chi/cors"
 	"github.com/go-chi/jwtauth"
 	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/data"
 	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/routes"
@@ -26,7 +27,18 @@ type Router struct {
 func NewRouterService(logger *logrus.Logger, db *data.DatabaseService, kmd *kmd.Client, algod *algod.Client, jwt *jwtauth.JWTAuth) *Router {
 	router := chi.NewRouter()
 
-	router.Use(middleware.Logger, middleware.RedirectSlashes)
+	cors := cors.New(cors.Options{
+		// AllowedOrigins: []string{"https://foo.com"}, // Use this to allow specific origin hosts
+		AllowedOrigins: []string{"*"},
+		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	})
+
+	router.Use(cors.Handler, middleware.Logger, middleware.RedirectSlashes)
 
 	managerHandler := routes.NewManagerHandler(logger, db, kmd, algod, jwt)
 
@@ -41,7 +53,7 @@ func NewRouterService(logger *logrus.Logger, db *data.DatabaseService, kmd *kmd.
 
 	// Public Routes
 	router.Group(func(router chi.Router) {
-		router.Post("/encryptMnemonic", managerHandler.EncryptMnemonic)
+		router.Post("/encodeMnemonic", managerHandler.EncodeMnemonic)
 		router.Get("/assets", managerHandler.GetAssets)
 	})
 
