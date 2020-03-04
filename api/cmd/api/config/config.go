@@ -6,6 +6,8 @@ type Config struct {
 	KMDAddress   string `required:"true"`
 	KMDToken     string `required:"true"`
 
+	TokenAuthPassword string `required:"true"`
+
 	DatabaseConfig
 }
 

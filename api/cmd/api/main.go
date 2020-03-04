@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/go-chi/jwtauth"
+
 	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/data"
 
 	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/config"
@@ -74,8 +76,11 @@ func main() {
 		return
 	}
 
+	// Setup JWT Auth
+	tokenAuth := jwtauth.New("HS256", []byte(config.TokenAuthPassword), nil)
+
 	// Setup Router
-	routerService := NewRouterService(logger, databaseService, &kmdClient, &algodClient)
+	routerService := NewRouterService(logger, databaseService, &kmdClient, &algodClient, tokenAuth)
 
 	// Serve
 	logger.Info("Starting server on port 5000")

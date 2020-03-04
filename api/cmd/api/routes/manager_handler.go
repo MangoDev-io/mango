@@ -8,6 +8,10 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/dgrijalva/jwt-go"
+
+	"github.com/go-chi/jwtauth"
+
 	"github.com/algorand/go-algorand-sdk/client/algod"
 	"github.com/algorand/go-algorand-sdk/client/kmd"
 	"github.com/algorand/go-algorand-sdk/crypto"
@@ -19,12 +23,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// ManagerHandler is the router handler for Mango
 type ManagerHandler struct {
-	log *logrus.Logger
-	db  *data.DatabaseService
-
+	log   *logrus.Logger
+	db    *data.DatabaseService
 	kmd   *kmd.Client
 	algod *algod.Client
+	jwt   *jwtauth.JWTAuth
 }
 
 type response struct {
@@ -32,42 +37,106 @@ type response struct {
 	TXHash  string `json:"txHash"`
 }
 
-func NewManagerHandler(log *logrus.Logger, db *data.DatabaseService, kmd *kmd.Client, algod *algod.Client) *ManagerHandler {
+// NewManagerHandler creates a new instance of ManagerHandler
+func NewManagerHandler(log *logrus.Logger, db *data.DatabaseService, kmd *kmd.Client, algod *algod.Client, jwt *jwtauth.JWTAuth) *ManagerHandler {
 	return &ManagerHandler{
 		log:   log,
 		db:    db,
 		kmd:   kmd,
 		algod: algod,
+		jwt:   jwt,
 	}
 }
 
-func (h *ManagerHandler) GetHello(rw http.ResponseWriter, req *http.Request) {
+// EncryptMnemonic accepts JSON body of the form { "mnemonic" : "abcd" }
+// and converts it into a JWT and send it to web
+func (h *ManagerHandler) EncryptMnemonic(rw http.ResponseWriter, req *http.Request) {
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		h.log.WithError(err).Error("failed to read body")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	type mnemonic struct {
+		Mnemonic string `json:"mnemonic"`
+	}
+
+	var request mnemonic
+	err = json.Unmarshal(body, &request)
+	if err != nil {
+		h.log.WithError(err).Error("failed to unmarshal body")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	_, tokenString, err := h.jwt.Encode(jwt.MapClaims{"mnemonic": request.Mnemonic})
+	if err != nil {
+		h.log.WithError(err).Error("failed to encode jwt claims")
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	type token struct {
+		Token string `json:"token"`
+	}
+
+	var response token
+	response.Token = tokenString
+
+	respJSON, err := json.Marshal(response)
+	if err != nil {
+		h.log.WithError(err).Error("failed to marshal body")
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	rw.Header().Set("Content-Type", "application/json")
-	rw.Write([]byte("{ message: 'it works' }"))
+	rw.Write(respJSON)
 }
 
+// GetAssets accepts a JSON body of the form { "address" : "example"  }
+// and returns a list of all assets owned by the address (created on Mango)
 func (h *ManagerHandler) GetAssets(rw http.ResponseWriter, req *http.Request) {
-	body, _ := ioutil.ReadAll(req.Body)
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		h.log.WithError(err).Error("failed to read body")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	type getAssetReq struct {
 		Address string `json:"address"`
 	}
 
 	var request getAssetReq
-	_ = json.Unmarshal(body, &request)
-
-	ownedassets, err := h.db.SelectAllAssetsForAddress(request.Address)
+	err = json.Unmarshal(body, &request)
 	if err != nil {
-		h.log.WithError(err).Error("cabnnot select")
+		h.log.WithError(err).Error("failed to unmarshal body")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
 	}
-	h.log.Info(ownedassets.AssetIds)
 
-	jsonResp, _ := json.Marshal(ownedassets)
+	ownedAssets, err := h.db.SelectAllAssetsForAddress(request.Address)
+	if err != nil {
+		h.log.WithError(err).Error("failed to select rows")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	jsonResp, err := json.Marshal(ownedAssets)
+	if err != nil {
+		h.log.WithError(err).Error("failed to marshal owned assets")
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(jsonResp)
 }
 
+// CreateAsset takes in a JSON body of type AssetCreate and
+// creates a new ASA on Algorand
 func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) {
 	body, err := ioutil.ReadAll(req.Body)
 
@@ -85,7 +154,16 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	privateKey, address, err := h.getPrivKeyAndAddressFromMnemonic(constants.TestAccountMnemonic)
+	_, claims, err := jwtauth.FromContext(req.Context())
+	if err != nil {
+		h.log.WithError(err).Error("failed to get jwt claims from context")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// privateKey, address, err := h.getPrivKeyAndAddressFromMnemonic(claims["mnemonic"].(string))
+	privateKey, address, err := h.getPrivKeyAndAddressFromMnemonic(claims["mnemonic"].(string))
+
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)

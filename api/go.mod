@@ -5,7 +5,9 @@ go 1.13
 require (
 	github.com/algorand/go-algorand-sdk v1.2.1
 	github.com/algorand/go-codec v1.1.7 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-chi/chi v4.0.3+incompatible
+	github.com/go-chi/jwtauth v4.0.4+incompatible
 	github.com/go-pg/pg v8.0.6+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
