@@ -17,14 +17,19 @@ _Setup_
 
 To start and stop `kmd` (from within the node directory):
 
-```
+```shell
 ./goal kmd start -t 3600 -d <datadir>
 ./goal kmd stop -d <datadir>
 ```
 
-Create a wallet with `goal`
-
+Start ngrok to tunnel `kmd`:
+```shell
+ngrok http 7833
 ```
+
+Create a wallet with `goal`:
+
+```shell
 ./goal wallet new TestWallet -d data
 ```
 
@@ -33,6 +38,7 @@ Be sure to replace the constants in `api/cmd/api/constants/constants.go` with yo
 Run the following commands to start the project from the root dir:
 
 ```
+docker-compose down
 docker-compose build
 docker-compose up
 ```
