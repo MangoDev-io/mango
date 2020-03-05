@@ -29,3 +29,21 @@ type AssetFreeze struct {
 	TargetAddr    string `json:"targetAddr"`
 	FreezeSetting bool   `json:"freezeSetting"`
 }
+
+// AssetModify is the structure passed to the modify transaction for modifying an asset
+type AssetModify struct {
+	AssetID         uint64 `json:"assetId"`
+	CurrManagerAddr string `json:"currManagerAddr"`
+	NewManagerAddr  string `json:"newManagerAddr"`
+	NewReserveAddr  string `json:"newReserveAddr"`
+	NewFreezeAddr   string `json:"newFreezeAddr"`
+	NewClawbackAddr string `json:"newClawbackAddr"`
+}
+
+// AssetRevoke is the structure passed to the revoke transaction for revoking an asset
+type AssetRevoke struct {
+	AssetID       uint64 `json:"assetId"`
+	ClawbackAddr  string `json:"clawbackAddr"`
+	TargetAddr    string `json:"targetAddr"`
+	RecepientAddr string `json:"recepientAddr"`
+}
