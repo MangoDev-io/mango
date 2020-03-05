@@ -250,7 +250,7 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 
 	txID, err := h.makeAndSendAssetDestroyTxn(assetDetails, privateKey)
 	if err != nil {
-		h.log.WithError(err).Error("failed to make and send asset create txn")
+		h.log.WithError(err).Error("failed to make and send asset destroy txn")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -262,13 +262,60 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 		h.log.WithError(err).Error("Error deleting address from wallet")
 	}
 
-	// Retrieve asset info. This should now throw an error.
-	// assetInfo, err := h.algod.AssetInformation(assetID, txHeaders...)
-	// if err != nil {
-	// 	fmt.Printf("%s\n", err)
-	// }
-
 	resp := response{AssetID: 0, TXHash: txID}
+	respJSON, err := json.Marshal(resp)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	rw.Header().Set("Content-Type", "application/json")
+	rw.Write(respJSON)
+}
+
+func (h *ManagerHandler) FreezeAsset(rw http.ResponseWriter, req *http.Request) {
+	body, err := ioutil.ReadAll(req.Body)
+
+	if err != nil {
+		h.log.WithError(err).Error("unable to read request body")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	var assetDetails models.AssetFreeze
+
+	err = json.Unmarshal(body, &assetDetails)
+
+	if err != nil {
+		h.log.WithError(err).Error("unable to unmarshal request into JSON")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	privateKey, freezeAddr, err := h.getPrivKeyAndAddressFromMnemonic(constants.TestAccountMnemonic)
+	if err != nil {
+		h.log.WithError(err).Error("failed to get private key from mnemonic")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	assetDetails.FreezeAddr = freezeAddr
+
+	txID, err := h.makeAndSendAssetFreezeTxn(assetDetails, privateKey)
+	if err != nil {
+		h.log.WithError(err).Error("failed to make and send asset freeze txn")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	h.log.Debug("Transaction ID: ", txID)
+
+	// Delete current address from wallet
+	err = h.deleteAddressFromWallet(freezeAddr)
+	if err != nil {
+		h.log.WithError(err).Error("Error deleting address from wallet")
+	}
+
+	resp := response{AssetID: assetDetails.AssetID, TXHash: txID}
 	respJSON, err := json.Marshal(resp)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -358,9 +405,9 @@ func (h *ManagerHandler) deleteAddressFromWallet(address string) error {
 	return nil
 }
 
+// Making and Sending Transactions:
 func (h *ManagerHandler) makeAndSendAssetCreateTxn(assetDetails models.AssetCreate, privateKey ed25519.PrivateKey) (string, error) {
 
-	// Create CreateAsset Transaction
 	txnParams, err := h.algod.SuggestedParams()
 	note := []byte(nil)
 	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
@@ -399,6 +446,38 @@ func (h *ManagerHandler) makeAndSendAssetDestroyTxn(assetDetails models.AssetDes
 
 	txn, err := transaction.MakeAssetDestroyTxn(assetDetails.ManagerAddr, txnParams.Fee,
 		txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID)
+
+	if err != nil {
+		h.log.WithError(err).Error("failed to send txn")
+		return "", err
+	}
+
+	txid, stx, err := crypto.SignTransaction(privateKey, txn)
+	if err != nil {
+		h.log.WithError(err).Error("Failed to sign transaction")
+		return "", err
+	}
+	h.log.Debugf("Transaction ID: %s", txid)
+	// Broadcast the transaction to the network
+	sendResponse, err := h.algod.SendRawTransaction(stx, &algod.Header{Key: "Content-Type", Value: "application/x-binary"})
+	if err != nil {
+		h.log.WithError(err).Error("failed to send transaction")
+		return "", err
+	}
+	h.log.Infof("Transaction ID raw: %s", sendResponse.TxID)
+	// Wait for transaction to be confirmed
+	h.waitForConfirmation(h.algod, sendResponse.TxID)
+
+	return sendResponse.TxID, nil
+}
+
+func (h *ManagerHandler) makeAndSendAssetFreezeTxn(assetDetails models.AssetFreeze, privateKey ed25519.PrivateKey) (string, error) {
+	txnParams, err := h.algod.SuggestedParams()
+	note := []byte(nil)
+	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
+
+	txn, err := transaction.MakeAssetFreezeTxn(assetDetails.FreezeAddr, txnParams.Fee,
+		txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID, assetDetails.TargetAddr, assetDetails.FreezeSetting)
 
 	if err != nil {
 		h.log.WithError(err).Error("failed to send txn")

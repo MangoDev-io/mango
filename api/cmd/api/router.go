@@ -35,8 +35,9 @@ func NewRouterService(logger *logrus.Logger, db *data.DatabaseService, kmd *kmd.
 		router.Use(jwtauth.Verifier(jwt))
 		router.Use(jwtauth.Authenticator)
 
-		router.Post("/destroyAsset", managerHandler.DestroyAsset)
 		router.Post("/createAsset", managerHandler.CreateAsset)
+		router.Post("/destroyAsset", managerHandler.DestroyAsset)
+		router.Post("/freezeAsset", managerHandler.FreezeAsset)
 	})
 
 	// Public Routes

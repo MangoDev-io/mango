@@ -16,8 +16,16 @@ type AssetCreate struct {
 	ClawbackAddr  string `json:"clawbackAddr"`
 }
 
-// AssetDestroy is the structure receieved from the web for destroying an asset
+// AssetDestroy is the structure passed to the destroy transaction for destroying an asset
 type AssetDestroy struct {
 	AssetID     uint64 `json:"assetId"`
 	ManagerAddr string `json:"managerAddr"`
+}
+
+// AssetFreeze is the structure passed to the freeze transaction for freezing an asset
+type AssetFreeze struct {
+	AssetID       uint64 `json:"assetId"`
+	FreezeAddr    string `json:"freezeAddr"`
+	TargetAddr    string `json:"targetAddr"`
+	FreezeSetting bool   `json:"freezeSetting"`
 }
