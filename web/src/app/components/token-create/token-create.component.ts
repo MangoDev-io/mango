@@ -8,7 +8,7 @@ import { StateService } from 'src/app/state.service'
     styleUrls: ['./token-create.component.scss'],
 })
 export class TokenCreateComponent implements OnInit {
-    private assetCreate = new AssetCreate()
+    assetCreate = new AssetCreate()
 
     constructor(private stateService: StateService) {}
 
