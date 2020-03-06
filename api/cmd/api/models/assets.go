@@ -51,6 +51,6 @@ type AssetRevoke struct {
 
 // AssetListing is an asset listing
 type AssetListing struct {
-	AssetID string   `json:"assetId"`
-	Type    []string `json:"type"`
+	AssetID     string   `json:"assetId"`
+	Permissions []string `json:"permissions"`
 }

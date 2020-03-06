@@ -244,22 +244,138 @@
                     <div class="token-details__button-group columns">
                         <!-- <div class="column is-one-quarter"></div> -->
                         <div class="column three-quarters">
-                            <button class="button is-info">
+                            <button
+                                class="button is-info"
+                                [attr.disabled]="
+                                    currToken.permissions.includes('freeze')
+                                        ? null
+                                        : ''
+                                "
+                                (click)="updateSelectedButton(1)"
+                            >
                                 Freeze
                             </button>
-                            <button class="button is-light">
+                            <button
+                                class="button is-light"
+                                [attr.disabled]="
+                                    currToken.permissions.includes('clawback')
+                                        ? null
+                                        : ''
+                                "
+                                (click)="updateSelectedButton(2)"
+                            >
                                 Revoke
                             </button>
-                            <button class="button is-warning">
+                            <button
+                                class="button is-success"
+                                [attr.disabled]="
+                                    currToken.permissions.includes('manager')
+                                        ? null
+                                        : ''
+                                "
+                                (click)="updateSelectedButton(3)"
+                            >
                                 Modify
                             </button>
-                            <button class="button is-danger">
+                            <button
+                                class="button is-danger"
+                                [attr.disabled]="
+                                    currToken.permissions.includes('manager')
+                                        ? null
+                                        : ''
+                                "
+                                (click)="updateSelectedButton(4)"
+                            >
                                 Destroy
                             </button>
                         </div>
                     </div>
 
-                    <div class="token-details__modify-form">
+                    <div
+                        class="token-details__freeze-form"
+                        *ngIf="selectedButton == 1"
+                    >
+                        <div class="columns">
+                            <div class="column is-half">
+                                <p class="is-pulled-right is-size-5">
+                                    Target Address:
+                                </p>
+                            </div>
+                            <div class="column is-half token-details__form">
+                                <input
+                                    class="input tag is-medium"
+                                    type="text"
+                                />
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column is-half">
+                                <p class="is-pulled-right is-size-5">
+                                    Action:
+                                </p>
+                            </div>
+                            <div
+                                class="column is-half token-details__form control"
+                            >
+                                <label class="radio">
+                                    <input type="radio" />Freeze
+                                </label>
+                                <label class="radio">
+                                    <input type="radio" />Unfreeze
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="token-details__revoke-form"
+                        *ngIf="selectedButton == 2"
+                    >
+                        <div class="columns">
+                            <div class="column is-half">
+                                <p class="is-pulled-right is-size-5">
+                                    Target Address:
+                                </p>
+                            </div>
+                            <div class="column is-half token-details__form">
+                                <input
+                                    class="input tag is-medium"
+                                    type="text"
+                                />
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column is-half">
+                                <p class="is-pulled-right is-size-5">
+                                    Recepient Address:
+                                </p>
+                            </div>
+                            <div class="column is-half token-details__form">
+                                <input
+                                    class="input tag is-medium"
+                                    type="text"
+                                />
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column is-half">
+                                <p class="is-pulled-right is-size-5">
+                                    Amount:
+                                </p>
+                            </div>
+                            <div class="column is-half token-details__form">
+                                <input
+                                    class="input tag is-medium"
+                                    type="number"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="token-details__modify-form"
+                        *ngIf="selectedButton == 3"
+                    >
                         <div class="columns">
                             <div class="column is-half">
                                 <p class="is-pulled-right is-size-5">
@@ -312,6 +428,19 @@
                                 />
                             </div>
                         </div>
+                    </div>
+
+                    <div
+                        class="token-details__freeze-form has-text-centered"
+                        *ngIf="selectedButton == 4"
+                    >
+                        <p>Are you sure you want to do this?</p>
+                    </div>
+
+                    <div class="has-text-centered tokenDetails__confirm">
+                        <button class="button is-warning">
+                            Confirm
+                        </button>
                     </div>
                 </div>
             </div>

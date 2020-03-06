@@ -124,25 +124,25 @@ func (h *ManagerHandler) GetAssets(rw http.ResponseWriter, req *http.Request) {
 
 	var listing []models.AssetListing
 	for _, asset := range ownedAssets {
-		var types []string
+		var permissions []string
 		if request.Address == asset.CreatorAddress {
-			types = append(types, "creator")
+			permissions = append(permissions, "creator")
 		}
 		if request.Address == asset.ManagerAddress {
-			types = append(types, "manager")
+			permissions = append(permissions, "manager")
 		}
 		if request.Address == asset.ReserveAddress {
-			types = append(types, "reserve")
+			permissions = append(permissions, "reserve")
 		}
 		if request.Address == asset.FreezeAddress {
-			types = append(types, "freeze")
+			permissions = append(permissions, "freeze")
 		}
 		if request.Address == asset.ClawbackAddress {
-			types = append(types, "clawback")
+			permissions = append(permissions, "clawback")
 		}
 		listing = append(listing, models.AssetListing{
-			AssetID: asset.AssetId,
-			Type:    types,
+			AssetID:     asset.AssetId,
+			Permissions: permissions,
 		})
 	}
 

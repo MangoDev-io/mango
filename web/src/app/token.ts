@@ -12,6 +12,7 @@ export class Token {
     reserveAddr: string
     freezeAddr: string
     clawbackAddr: string
+    permissions: string[]
 
     constructor(init?: Partial<Token>) {
         Object.assign(this, init)

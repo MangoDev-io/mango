@@ -32,6 +32,7 @@ export class StateService {
             '2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY',
         clawbackAddr:
             '2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY',
+        permissions: ['manager', 'clawback', 'freeze'],
     })
 
     public tokenList: Token[] = [this.currToken, this.currToken, this.currToken]
