@@ -13,7 +13,6 @@ import (
 	"github.com/go-chi/jwtauth"
 
 	"github.com/algorand/go-algorand-sdk/client/algod"
-	"github.com/algorand/go-algorand-sdk/client/kmd"
 	"github.com/algorand/go-algorand-sdk/crypto"
 	"github.com/algorand/go-algorand-sdk/mnemonic"
 	"github.com/algorand/go-algorand-sdk/transaction"
@@ -28,7 +27,6 @@ import (
 type ManagerHandler struct {
 	log   *logrus.Logger
 	db    *data.DatabaseService
-	kmd   *kmd.Client
 	algod *algod.Client
 	jwt   *jwtauth.JWTAuth
 }
@@ -39,11 +37,10 @@ type response struct {
 }
 
 // NewManagerHandler creates a new instance of ManagerHandler
-func NewManagerHandler(log *logrus.Logger, db *data.DatabaseService, kmd *kmd.Client, algod *algod.Client, jwt *jwtauth.JWTAuth) *ManagerHandler {
+func NewManagerHandler(log *logrus.Logger, db *data.DatabaseService, algod *algod.Client, jwt *jwtauth.JWTAuth) *ManagerHandler {
 	return &ManagerHandler{
 		log:   log,
 		db:    db,
-		kmd:   kmd,
 		algod: algod,
 		jwt:   jwt,
 	}

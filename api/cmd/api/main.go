@@ -10,8 +10,6 @@ import (
 
 	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/config"
 
-	"github.com/algorand/go-algorand-sdk/client/kmd"
-
 	"github.com/algorand/go-algorand-sdk/client/algod"
 
 	"github.com/sirupsen/logrus"
@@ -69,18 +67,11 @@ func main() {
 		logger.WithError(err).Panic("failed to make algod client")
 	}
 
-	// Setup KMD Client
-	kmdClient, err := kmd.MakeClient(config.KMDAddress, config.KMDToken)
-	if err != nil {
-		logger.WithError(err).Panic("failed to make kmd client")
-		return
-	}
-
 	// Setup JWT Auth
 	tokenAuth := jwtauth.New("HS256", []byte(config.TokenAuthPassword), nil)
 
 	// Setup Router
-	routerService := NewRouterService(logger, databaseService, &kmdClient, &algodClient, tokenAuth)
+	routerService := NewRouterService(logger, databaseService, &algodClient, tokenAuth)
 
 	// Serve
 	logger.Info("Starting server on port 5000")

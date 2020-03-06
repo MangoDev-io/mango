@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/algorand/go-algorand-sdk/client/algod"
-	"github.com/algorand/go-algorand-sdk/client/kmd"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/jwtauth"
 	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/data"
@@ -18,13 +17,12 @@ type Router struct {
 	*chi.Mux
 	log   *logrus.Logger
 	db    *data.DatabaseService
-	kmd   *kmd.Client
 	algod *algod.Client
 	jwt   *jwtauth.JWTAuth
 }
 
 // NewRouterService return a new instance of the Router
-func NewRouterService(logger *logrus.Logger, db *data.DatabaseService, kmd *kmd.Client, algod *algod.Client, jwt *jwtauth.JWTAuth) *Router {
+func NewRouterService(logger *logrus.Logger, db *data.DatabaseService, algod *algod.Client, jwt *jwtauth.JWTAuth) *Router {
 	router := chi.NewRouter()
 
 	cors := cors.New(cors.Options{
@@ -40,7 +38,7 @@ func NewRouterService(logger *logrus.Logger, db *data.DatabaseService, kmd *kmd.
 
 	router.Use(cors.Handler, middleware.Logger, middleware.RedirectSlashes)
 
-	managerHandler := routes.NewManagerHandler(logger, db, kmd, algod, jwt)
+	managerHandler := routes.NewManagerHandler(logger, db, algod, jwt)
 
 	// JWT Protected Routes
 	router.Group(func(router chi.Router) {
@@ -59,6 +57,6 @@ func NewRouterService(logger *logrus.Logger, db *data.DatabaseService, kmd *kmd.
 		router.Get("/assets", managerHandler.GetAssets)
 	})
 
-	service := &Router{router, logger, db, kmd, algod, jwt}
+	service := &Router{router, logger, db, algod, jwt}
 	return service
 }
