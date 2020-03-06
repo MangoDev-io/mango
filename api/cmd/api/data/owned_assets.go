@@ -2,22 +2,38 @@ package data
 
 import "github.com/haardikk21/algorand-asset-manager/api/cmd/api/models"
 
-func (s *DatabaseService) InsertNewAsset(addr, assetID string) error {
+// InsertNewAsset inserts a new asset into the database
+func (s *DatabaseService) InsertNewAsset(creatorAddr, managerAddr, reserveAddr, freezeAddr, clawbackAddr, assetID string) error {
 	var record models.OwnedAssets
-	record.Address = addr
+	record.CreatorAddress = creatorAddr
+	record.ManagerAddress = managerAddr
+	record.ReserveAddress = reserveAddr
+	record.FreezeAddress = freezeAddr
+	record.ClawbackAddress = clawbackAddr
+	record.AssetId = assetID
 
 	_, err := s.Model(&record).
-		Where("address = ?address").
-		Returning("*").
-		SelectOrInsert()
+		Insert()
+
 	if err != nil {
 		return err
 	}
 
-	record.AssetIds = append(record.AssetIds, assetID)
+	return nil
+}
 
-	_, err = s.Model(&record).
-		Where("address = ?address").
+// UpdateAssetAddresses updates the mutable addresses linked to an asset
+func (s *DatabaseService) UpdateAssetAddresses(managerAddr, reserveAddr, freezeAddr, clawbackAddr, assetID string) error {
+	var record models.OwnedAssets
+	record.ManagerAddress = managerAddr
+	record.ReserveAddress = reserveAddr
+	record.FreezeAddress = freezeAddr
+	record.ClawbackAddress = clawbackAddr
+	record.AssetId = assetID
+
+	_, err := s.Model(&record).
+		Where("asset_id = ?asset_id").
+		Column("manager_address", "reserve_address", "freeze_address", "clawback_address").
 		Update()
 
 	if err != nil {
@@ -27,17 +43,21 @@ func (s *DatabaseService) InsertNewAsset(addr, assetID string) error {
 	return nil
 }
 
-func (s *DatabaseService) SelectAllAssetsForAddress(addr string) (*models.OwnedAssets, error) {
-	var record models.OwnedAssets
-	record.Address = addr
+// SelectAllAssetsForAddress selects all assets where address is one of the addresses linked to it
+func (s *DatabaseService) SelectAllAssetsForAddress(addr string) ([]*models.OwnedAssets, error) {
+	var record []*models.OwnedAssets
 
 	err := s.Model(&record).
-		Where("address = ?address").
+		Where("creator_address = ?", addr).
+		WhereOr("manager_address = ?", addr).
+		WhereOr("reserve_address = ?", addr).
+		WhereOr("freeze_address = ?", addr).
+		WhereOr("clawback_address = ?", addr).
 		Select()
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &record, nil
+	return record, nil
 }

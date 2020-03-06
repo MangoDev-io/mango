@@ -48,3 +48,9 @@ type AssetRevoke struct {
 	RecepientAddr string `json:"recepientAddr"`
 	Amount        uint64 `json:"amount"`
 }
+
+// AssetListing is an asset listing
+type AssetListing struct {
+	AssetID string   `json:"assetId"`
+	Type    []string `json:"type"`
+}
