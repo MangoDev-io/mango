@@ -6,218 +6,182 @@
         <div class="message-body has-background-grey-lighter">
             <div class="columns">
                 <div class="column is-half">
-                    <div class="field is-horizontal">
-                        <div class="field-label is-normal">
-                            <label class="label">Asset Name</label>
+                    <div class="columns">
+                        <div class="column is-two-fifths">
+                            <p class="is-pulled-right is-size-5">Asset Name:</p>
                         </div>
-                        <div class="field-body">
-                            <div class="field tokenCreate">
-                                <div class="control">
-                                    <input
-                                        class="input"
-                                        type="text"
-                                        [(ngModel)]="assetCreate.assetName"
-                                        placeholder="e.g. USD Tether"
-                                    />
-                                </div>
-                            </div>
+                        <div class="column">
+                            <input
+                                class="input tag is-medium"
+                                type="text"
+                                [(ngModel)]="assetCreate.assetName"
+                                placeholder="e.g. USD Tether"
+                            />
                         </div>
                     </div>
-                    <br />
-                    <div class="field is-horizontal">
-                        <div class="field-label is-normal">
-                            <label class="label">Total Issuance</label>
+
+                    <div class="columns">
+                        <div class="column is-two-fifths">
+                            <p class="is-pulled-right is-size-5">
+                                Total Issuance:
+                            </p>
                         </div>
-                        <div class="field-body">
-                            <div class="field tokenCreate">
-                                <div class="control">
-                                    <input
-                                        class="input"
-                                        type="number"
-                                        [(ngModel)]="assetCreate.totalIssuance"
-                                        placeholder="e.g. 100000000"
-                                    />
-                                </div>
-                            </div>
+                        <div class="column">
+                            <input
+                                class="input tag is-medium"
+                                type="number"
+                                [(ngModel)]="assetCreate.totalIssuance"
+                                placeholder="e.g. 100000000"
+                            />
                         </div>
                     </div>
-                    <br />
-                    <div class="field is-horizontal">
-                        <div class="field-label">
-                            <label class="label">Default Frozen</label>
+
+                    <div class="columns">
+                        <div class="column is-two-fifths">
+                            <p class="is-pulled-right is-size-5">
+                                Default Frozen:
+                            </p>
                         </div>
-                        <div class="field-body">
-                            <div class="field tokenCreate">
-                                <div class="control">
-                                    <label class="radio">
-                                        <input
-                                            type="radio"
-                                            name="member"
-                                            [(ngModel)]="
-                                                assetCreate.defaultFrozen
-                                            "
-                                            [value]="true"
-                                        />
-                                        Yes
-                                    </label>
-                                    <label class="radio">
-                                        <input
-                                            type="radio"
-                                            name="member"
-                                            [(ngModel)]="
-                                                assetCreate.defaultFrozen
-                                            "
-                                            [value]="false"
-                                        />
-                                        No
-                                    </label>
-                                </div>
-                            </div>
+                        <div class="column">
+                            <label class="radio">
+                                <input
+                                    type="radio"
+                                    name="member"
+                                    [(ngModel)]="assetCreate.defaultFrozen"
+                                    [value]="true"
+                                />
+                                Yes
+                            </label>
+                            <label class="radio">
+                                <input
+                                    type="radio"
+                                    name="member"
+                                    [(ngModel)]="assetCreate.defaultFrozen"
+                                    [value]="false"
+                                />
+                                No
+                            </label>
                         </div>
                     </div>
-                    <br />
-                    <div class="field is-horizontal">
-                        <div class="field-label is-normal">
-                            <label class="label">Metadata Hash</label>
+
+                    <div class="columns">
+                        <div class="column is-two-fifths">
+                            <p class="is-pulled-right is-size-5">
+                                Metadata Hash:
+                            </p>
                         </div>
-                        <div class="field-body">
-                            <div class="field tokenCreate">
-                                <div class="control">
-                                    <input
-                                        class="input"
-                                        type="text"
-                                        [(ngModel)]="assetCreate.metadataHash"
-                                    />
-                                </div>
-                            </div>
+                        <div class="column">
+                            <input
+                                class="input tag is-medium"
+                                type="text"
+                                [(ngModel)]="assetCreate.metadataHash"
+                            />
                         </div>
                     </div>
                 </div>
                 <div class="column is-half">
-                    <div class="field is-horizontal">
-                        <div class="field-label is-normal">
-                            <label class="label">Unit Name</label>
+                    <div class="columns">
+                        <div class="column is-one-quarter">
+                            <p class="is-pulled-left is-size-5">
+                                Unit Name:
+                            </p>
                         </div>
-                        <div class="field-body">
-                            <div class="field tokenCreate">
-                                <div class="control">
-                                    <input
-                                        class="input"
-                                        type="text"
-                                        [(ngModel)]="assetCreate.unitName"
-                                        placeholder="e.g. USDT"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <br />
-                    <div class="field is-horizontal">
-                        <div class="field-label is-normal">
-                            <label class="label">Decimals</label>
-                        </div>
-                        <div class="field-body">
-                            <div class="field tokenCreate">
-                                <div class="control">
-                                    <input
-                                        class="input"
-                                        type="number"
-                                        [(ngModel)]="assetCreate.decimals"
-                                        placeholder="e.g. 10"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <br />
-                    <div class="field is-horizontal">
-                        <div class="field-label is-normal">
-                            <label class="label">URL</label>
-                        </div>
-                        <div class="field-body">
-                            <div class="field tokenCreate">
-                                <div class="control">
-                                    <input
-                                        class="input"
-                                        type="text"
-                                        [(ngModel)]="assetCreate.url"
-                                        placeholder="e.g. https://tether.to/"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="field is-horizontal">
-                <div class="field-label is-normal">
-                    <label class="label">Manager Address</label>
-                </div>
-                <div class="field-body">
-                    <div class="field">
-                        <div class="control">
+                        <div class="column">
                             <input
-                                class="input"
+                                class="input tag is-medium"
                                 type="text"
-                                [(ngModel)]="assetCreate.managerAddr"
-                                placeholder="e.g. 2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY"
+                                [(ngModel)]="assetCreate.unitName"
+                                placeholder="e.g. USDT"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="columns">
+                        <div class="column is-one-quarter">
+                            <p class="is-pulled-left is-size-5">
+                                Decimals:
+                            </p>
+                        </div>
+                        <div class="column">
+                            <input
+                                class="input tag is-medium"
+                                type="number"
+                                [(ngModel)]="assetCreate.decimals"
+                                placeholder="e.g. 10"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="columns">
+                        <div class="column is-one-quarter">
+                            <p class="is-pulled-left is-size-5">
+                                URL:
+                            </p>
+                        </div>
+                        <div class="column">
+                            <input
+                                class="input tag is-medium"
+                                type="text"
+                                [(ngModel)]="assetCreate.url"
+                                placeholder="e.g. https://tether.to/"
                             />
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="field is-horizontal">
-                <div class="field-label is-normal">
-                    <label class="label">Reserve Address</label>
+            <div class="columns">
+                <div class="column is-one-fifth">
+                    <p class="is-pulled-right is-size-5">Manager Address</p>
                 </div>
-                <div class="field-body">
-                    <div class="field">
-                        <div class="control">
-                            <input
-                                class="input"
-                                type="text"
-                                [(ngModel)]="assetCreate.reserveAddr"
-                                placeholder="e.g. 2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY"
-                            />
-                        </div>
-                    </div>
+                <div class="column">
+                    <input
+                        class="input tag is-medium"
+                        type="text"
+                        [(ngModel)]="assetCreate.managerAddr"
+                        placeholder="e.g. MTTIYHO4QQAEZ6VPLW44YV7AT7TY4SDBYGLFARD7POC2JMSIIK3RVWZVZU"
+                    />
                 </div>
             </div>
-            <div class="field is-horizontal">
-                <div class="field-label is-normal">
-                    <label class="label">Freeze Address</label>
+            <div class="columns">
+                <div class="column is-one-fifth">
+                    <p class="is-pulled-right is-size-5">Reserve Address</p>
                 </div>
-                <div class="field-body">
-                    <div class="field">
-                        <div class="control">
-                            <input
-                                class="input"
-                                type="text"
-                                [(ngModel)]="assetCreate.freezeAddr"
-                                placeholder="e.g. 2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY"
-                            />
-                        </div>
-                    </div>
+                <div class="column">
+                    <input
+                        class="input tag is-medium"
+                        type="text"
+                        [(ngModel)]="assetCreate.reserveAddr"
+                        placeholder="e.g. MTTIYHO4QQAEZ6VPLW44YV7AT7TY4SDBYGLFARD7POC2JMSIIK3RVWZVZU"
+                    />
                 </div>
             </div>
-            <div class="field is-horizontal">
-                <div class="field-label is-normal">
-                    <label class="label">Clawback Address</label>
+            <div class="columns">
+                <div class="column is-one-fifth">
+                    <p class="is-pulled-right is-size-5">Freeze Address</p>
                 </div>
-                <div class="field-body">
-                    <div class="field">
-                        <div class="control">
-                            <input
-                                class="input"
-                                type="text"
-                                [(ngModel)]="assetCreate.clawbackAddr"
-                                placeholder="e.g. 2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY"
-                            />
-                        </div>
-                    </div>
+                <div class="column">
+                    <input
+                        class="input tag is-medium"
+                        type="text"
+                        [(ngModel)]="assetCreate.freezeAddr"
+                        placeholder="e.g. MTTIYHO4QQAEZ6VPLW44YV7AT7TY4SDBYGLFARD7POC2JMSIIK3RVWZVZU"
+                    />
                 </div>
             </div>
-            <br />
+            <div class="columns">
+                <div class="column is-one-fifth">
+                    <p class="is-pulled-right is-size-5">Clawback Address</p>
+                </div>
+                <div class="column">
+                    <input
+                        class="input tag is-medium"
+                        type="text"
+                        [(ngModel)]="assetCreate.clawbackAddr"
+                        placeholder="e.g. MTTIYHO4QQAEZ6VPLW44YV7AT7TY4SDBYGLFARD7POC2JMSIIK3RVWZVZU"
+                    />
+                </div>
+            </div>
+
             <div class="field is-grouped is-grouped-centered">
                 <p class="control">
                     <a class="button is-warning" (click)="createAsset()">
