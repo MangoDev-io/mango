@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { StateService } from 'src/app/state.service'
 import { Subscription } from 'rxjs'
-import { Token } from 'src/app/model/token'
+import { Token } from 'src/app/token'
 
 @Component({
     selector: 'app-manage',

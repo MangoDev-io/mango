@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { Token } from '../../model/token'
+import { Token } from '../../token'
 
 @Component({
     selector: 'app-token-details',

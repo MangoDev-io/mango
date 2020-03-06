@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core'
-import { Token } from './model/token'
+import { Token } from './token'
 import { BehaviorSubject, Observable } from 'rxjs'
 import {
     HttpClient,
     HttpHeaderResponse,
     HttpHeaders,
 } from '@angular/common/http'
-import { AssetCreate } from './asset-create'
 
 @Injectable({
     providedIn: 'root',
@@ -14,21 +13,26 @@ import { AssetCreate } from './asset-create'
 export class StateService {
     private baseURL = 'http://localhost:5000'
 
-    public currToken = new Token(
-        '324234',
-        '2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY',
-        'USD Tether',
-        'USDT',
-        100000000,
-        15,
-        false,
-        'https://usdtether.io',
-        'aldskfjlakjsdf;',
-        '2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY',
-        '2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY',
-        '2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY',
-        '2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY'
-    )
+    public currToken = new Token({
+        assetId: '324234',
+        creatorAddr:
+            '2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY',
+        assetName: 'USD Tether',
+        unitName: 'USDT',
+        totalIssuance: 100000000,
+        decimals: 15,
+        defaultFrozen: false,
+        url: 'https://usdtether.io',
+        metadataHash: 'aldskfjlakjsdf;',
+        managerAddr:
+            '2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY',
+        reserveAddr:
+            '2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY',
+        freezeAddr:
+            '2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY',
+        clawbackAddr:
+            '2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY',
+    })
 
     public tokenList: Token[] = [this.currToken, this.currToken, this.currToken]
 
@@ -67,7 +71,7 @@ export class StateService {
         })
     }
 
-    createAsset(a: AssetCreate) {
+    createAsset(a: Token) {
         let httpHeaders = new HttpHeaders({
             'Content-Type': 'application/json',
             Authorization: 'Bearer ' + this.authToken,

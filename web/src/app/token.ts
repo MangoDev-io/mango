@@ -1,4 +1,5 @@
-export class AssetCreate {
+export class Token {
+    assetId: string
     creatorAddr: string
     assetName: string
     unitName: string
@@ -12,8 +13,7 @@ export class AssetCreate {
     freezeAddr: string
     clawbackAddr: string
 
-    // Assigns parameters from object to class fields
-    constructor(init?: Partial<AssetCreate>) {
+    constructor(init?: Partial<Token>) {
         Object.assign(this, init)
     }
 }

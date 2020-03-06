@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ElementRef } from '@angular/core'
-import { Token } from 'src/app/model/token'
 import { StateService } from 'src/app/state.service'
+import { Token } from 'src/app/token'
 
 @Component({
     selector: 'app-token-entry',

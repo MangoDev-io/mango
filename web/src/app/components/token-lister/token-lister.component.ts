@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import { StateService } from '../../state.service'
-import { Token } from '../../model/token'
-
+import { Token } from '../../token'
 @Component({
     selector: 'app-token-lister',
     templateUrl: './token-lister.component.html',
