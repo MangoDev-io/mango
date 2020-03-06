@@ -17,6 +17,7 @@ import (
 	"github.com/algorand/go-algorand-sdk/crypto"
 	"github.com/algorand/go-algorand-sdk/mnemonic"
 	"github.com/algorand/go-algorand-sdk/transaction"
+	"github.com/algorand/go-algorand-sdk/types"
 	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/constants"
 	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/data"
 	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/models"
@@ -163,7 +164,7 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 	}
 
 	// privateKey, address, err := h.getPrivKeyAndAddressFromMnemonic(claims["mnemonic"].(string))
-	privateKey, address, err := h.getPrivKeyAndAddressFromMnemonic(claims["mnemonic"].(string))
+	privateKey, address := h.recoverAccount(claims["mnemonic"].(string))
 
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
@@ -178,11 +179,6 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 		h.log.WithError(err).Error("failed to make and send asset create txn")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
-	}
-
-	err = h.deleteAddressFromWallet(assetDetails.CreatorAddr)
-	if err != nil {
-		h.log.WithError(err).Error("Error deleting address from wallet")
 	}
 
 	// Retrieve asset ID by grabbing the max asset ID
@@ -241,7 +237,7 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	privateKey, managerAddr, err := h.getPrivKeyAndAddressFromMnemonic(constants.TestAccountMnemonic)
+	privateKey, managerAddr := h.recoverAccount(constants.TestAccountMnemonic)
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -257,12 +253,6 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 		return
 	}
 	h.log.Debug("Transaction ID: ", txID)
-
-	// Delete current address from wallet
-	err = h.deleteAddressFromWallet(managerAddr)
-	if err != nil {
-		h.log.WithError(err).Error("Error deleting address from wallet")
-	}
 
 	resp := response{AssetID: 0, TXHash: txID}
 	respJSON, err := json.Marshal(resp)
@@ -294,7 +284,7 @@ func (h *ManagerHandler) FreezeAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	privateKey, freezeAddr, err := h.getPrivKeyAndAddressFromMnemonic(constants.TestAccountMnemonic)
+	privateKey, freezeAddr := h.recoverAccount(constants.TestAccountMnemonic)
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -310,12 +300,6 @@ func (h *ManagerHandler) FreezeAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 	h.log.Debug("Transaction ID: ", txID)
-
-	// Delete current address from wallet
-	err = h.deleteAddressFromWallet(freezeAddr)
-	if err != nil {
-		h.log.WithError(err).Error("Error deleting address from wallet")
-	}
 
 	resp := response{AssetID: assetDetails.AssetID, TXHash: txID}
 	respJSON, err := json.Marshal(resp)
@@ -348,63 +332,20 @@ func (h *ManagerHandler) waitForConfirmation(algodClient *algod.Client, txID str
 	}
 }
 
-// Wallet Helper Functions ---- // TODO - MAKE WALLETID A GLOBAL VARIABLE
-func (h *ManagerHandler) getPrivKeyAndAddressFromMnemonic(accountMnemonic string) (ed25519.PrivateKey, string, error) {
-	// Import Account from Account Mnemonic --------------------------------------
-	// Get the list of wallets
-	listResponse, err := h.kmd.ListWallets()
+// Jason Weathersby's function utility function to recover account and return sk and address :)
+func (h *ManagerHandler) recoverAccount(userMnemonic string) (ed25519.PrivateKey, string) {
+	sk, err := mnemonic.ToPrivateKey(userMnemonic)
 	if err != nil {
-		h.log.WithError(err).Error("error listing wallets when importing mnemonic")
-		return nil, "", err
+		h.log.WithError(err).Error("error recovering account")
+		return nil, ""
 	}
-
-	// Find our wallet name in the list
-	var walletID string
-	for _, wallet := range listResponse.Wallets {
-		if wallet.Name == constants.TestWalletName {
-			h.log.Debugf("Got Wallet '%s' with ID: %s", wallet.Name, wallet.ID)
-			walletID = wallet.ID
-		}
-	}
-
-	// Get a wallet handle
-	initResponse, err := h.kmd.InitWalletHandle(walletID, constants.TestWalletPassword)
-	if err != nil {
-		h.log.WithError(err).Error("Error initializing wallet handle")
-		return nil, "", err
-	}
-
-	h.log.Debugf("Account Mnemonic: %s", accountMnemonic)
-	privateKey, err := mnemonic.ToPrivateKey(accountMnemonic)
-	importedAccount, err := h.kmd.ImportKey(initResponse.WalletHandleToken, privateKey)
-	h.log.Debugf("Account Successfully Imported: %s", importedAccount)
-
-	return privateKey, importedAccount.Address, nil
-}
-
-func (h *ManagerHandler) deleteAddressFromWallet(address string) error {
-	listResponse, err := h.kmd.ListWallets()
-	if err != nil {
-		h.log.WithError(err).Error("error listing wallets when deleting")
-		return err
-	}
-
-	var walletID string
-	for _, wallet := range listResponse.Wallets {
-		if wallet.Name == constants.TestWalletName {
-			h.log.Debugf("Got Wallet '%s' with ID: %s", wallet.Name, wallet.ID)
-			walletID = wallet.ID
-		}
-	}
-
-	initResponse, err := h.kmd.InitWalletHandle(walletID, constants.TestWalletPassword)
-	if err != nil {
-		h.log.WithError(err).Error("Error initializing wallet handle")
-		return err
-	}
-
-	h.kmd.DeleteKey(initResponse.WalletHandleToken, constants.TestWalletPassword, address)
-	return nil
+	pk := sk.Public()
+	var a types.Address
+	cpk := pk.(ed25519.PublicKey)
+	copy(a[:], cpk[:])
+	h.log.Debugf("Address: %s\n", a.String())
+	address := a.String()
+	return sk, address
 }
 
 // Making and Sending Transactions:
