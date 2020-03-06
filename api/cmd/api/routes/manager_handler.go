@@ -479,7 +479,7 @@ func (h *ManagerHandler) makeAndSendAssetModifyTxn(assetDetails models.AssetModi
 	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
 
 	txn, err := transaction.MakeAssetConfigTxn(assetDetails.CurrManagerAddr, txnParams.Fee,
-		txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID, assetDetails.NewManagerAddr, assetDetails.NewReserveAddr, assetDetails.NewFreezeAddr, assetDetails.NewClawbackAddr, true)
+		txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID, assetDetails.NewManagerAddr, assetDetails.NewReserveAddr, assetDetails.NewFreezeAddr, assetDetails.NewClawbackAddr, false)
 
 	if err != nil {
 		h.log.WithError(err).Error("failed to send txn")
