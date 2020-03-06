@@ -283,7 +283,7 @@ func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) 
 	}
 	h.log.Debug("Transaction ID: ", txID)
 
-	err = h.db.UpdateAssetAddresses(assetDetails.NewManagerAddr, assetDetails.NewReserveAddr, assetDetails.NewFreezeAddr, assetDetails.NewClawbackAddr)
+	err = h.db.UpdateAssetAddresses(assetDetails.NewManagerAddr, assetDetails.NewReserveAddr, assetDetails.NewFreezeAddr, assetDetails.NewClawbackAddr, strconv.FormatUint(assetDetails.AssetID, 10))
 	if err != nil {
 		h.log.WithError(err).Error("failed to update asset addresses")
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -328,7 +328,7 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	privateKey, managerAddr := h.recoverAccount(claims["mnemonic"].(string)
+	privateKey, managerAddr := h.recoverAccount(claims["mnemonic"].(string))
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -383,7 +383,7 @@ func (h *ManagerHandler) FreezeAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	privateKey, managerAddr := h.recoverAccount(claims["mnemonic"].(string)
+	privateKey, freezeAddr := h.recoverAccount(claims["mnemonic"].(string))
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -438,7 +438,7 @@ func (h *ManagerHandler) RevokeAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	privateKey, managerAddr := h.recoverAccount(claims["mnemonic"].(string)
+	privateKey, clawbackAddr := h.recoverAccount(claims["mnemonic"].(string))
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
