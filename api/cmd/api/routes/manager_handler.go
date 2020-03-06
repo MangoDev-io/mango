@@ -122,7 +122,31 @@ func (h *ManagerHandler) GetAssets(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	jsonResp, err := json.Marshal(ownedAssets)
+	var listing []models.AssetListing
+	for _, asset := range ownedAssets {
+		var types []string
+		if request.Address == asset.CreatorAddress {
+			types = append(types, "creator")
+		}
+		if request.Address == asset.ManagerAddress {
+			types = append(types, "manager")
+		}
+		if request.Address == asset.ReserveAddress {
+			types = append(types, "reserve")
+		}
+		if request.Address == asset.FreezeAddress {
+			types = append(types, "freeze")
+		}
+		if request.Address == asset.ClawbackAddress {
+			types = append(types, "clawback")
+		}
+		listing = append(listing, models.AssetListing{
+			AssetID: asset.AssetId,
+			Type:    types,
+		})
+	}
+
+	jsonResp, err := json.Marshal(listing)
 	if err != nil {
 		h.log.WithError(err).Error("failed to marshal owned assets")
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -197,7 +221,7 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 	assetInfo, err := h.algod.AssetInformation(assetID)
 	h.log.Debugf("Asset info: %#v", assetInfo)
 
-	err = h.db.InsertNewAsset(assetDetails.CreatorAddr, strconv.FormatUint(assetID, 10))
+	err = h.db.InsertNewAsset(assetDetails.CreatorAddr, assetDetails.ManagerAddr, assetDetails.ReserveAddr, assetDetails.FreezeAddr, assetDetails.ClawbackAddr, strconv.FormatUint(assetID, 10))
 	if err != nil {
 		h.log.WithError(err).Error("failed to insert new asset in database")
 		rw.WriteHeader(http.StatusInternalServerError)
