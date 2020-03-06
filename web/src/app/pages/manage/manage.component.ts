@@ -9,11 +9,11 @@ import { Token } from 'src/app/model/token'
     styleUrls: ['./manage.component.scss'],
 })
 export class ManageComponent implements OnInit {
-    private showTokenSubscription: Subscription
-    private selectedTokenSubscription: Subscription
+    showTokenSubscription: Subscription
+    selectedTokenSubscription: Subscription
 
-    private showTokenCreate: boolean
-    private selectedToken: Token
+    showTokenCreate: boolean
+    selectedToken: Token
 
     constructor(private stateService: StateService) {
         this.showTokenSubscription = this.stateService

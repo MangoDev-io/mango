@@ -5,10 +5,7 @@
     </div>
 
     <!-- Token List -->
-    <div
-        *ngFor="let token of stateService.tokenList; index as j"
-        class="token__container"
-    >
+    <div *ngFor="let token of tokens; index as j" class="token__container">
         <app-token-entry
             [token]="token"
             [entryId]="j"
