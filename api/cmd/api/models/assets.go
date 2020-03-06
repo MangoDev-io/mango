@@ -16,6 +16,16 @@ type AssetCreate struct {
 	ClawbackAddr  string `json:"clawbackAddr"`
 }
 
+// AssetModify is the structure passed to the modify transaction for modifying an asset
+type AssetModify struct {
+	AssetID         uint64 `json:"assetId"`
+	CurrManagerAddr string `json:"currManagerAddr"`
+	NewManagerAddr  string `json:"newManagerAddr"`
+	NewReserveAddr  string `json:"newReserveAddr"`
+	NewFreezeAddr   string `json:"newFreezeAddr"`
+	NewClawbackAddr string `json:"newClawbackAddr"`
+}
+
 // AssetDestroy is the structure passed to the destroy transaction for destroying an asset
 type AssetDestroy struct {
 	AssetID     uint64 `json:"assetId"`
@@ -28,16 +38,6 @@ type AssetFreeze struct {
 	FreezeAddr    string `json:"freezeAddr"`
 	TargetAddr    string `json:"targetAddr"`
 	FreezeSetting bool   `json:"freezeSetting"`
-}
-
-// AssetModify is the structure passed to the modify transaction for modifying an asset
-type AssetModify struct {
-	AssetID         uint64 `json:"assetId"`
-	CurrManagerAddr string `json:"currManagerAddr"`
-	NewManagerAddr  string `json:"newManagerAddr"`
-	NewReserveAddr  string `json:"newReserveAddr"`
-	NewFreezeAddr   string `json:"newFreezeAddr"`
-	NewClawbackAddr string `json:"newClawbackAddr"`
 }
 
 // AssetRevoke is the structure passed to the revoke transaction for revoking an asset

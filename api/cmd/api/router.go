@@ -46,6 +46,7 @@ func NewRouterService(logger *logrus.Logger, db *data.DatabaseService, algod *al
 		router.Use(jwtauth.Authenticator)
 
 		router.Post("/createAsset", managerHandler.CreateAsset)
+		router.Post("/modifyAsset", managerHandler.ModifyAsset)
 		router.Post("/destroyAsset", managerHandler.DestroyAsset)
 		router.Post("/freezeAsset", managerHandler.FreezeAsset)
 		router.Post("/revokeAsset", managerHandler.RevokeAsset)

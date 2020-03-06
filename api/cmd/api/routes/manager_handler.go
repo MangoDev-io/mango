@@ -215,6 +215,53 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 	rw.Write(respJSON)
 }
 
+func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) {
+	body, err := ioutil.ReadAll(req.Body)
+
+	if err != nil {
+		h.log.WithError(err).Error("unable to read request body")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	var assetDetails models.AssetModify
+
+	err = json.Unmarshal(body, &assetDetails)
+
+	if err != nil {
+		h.log.WithError(err).Error("unable to unmarshal request into JSON")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	privateKey, managerAddr := h.recoverAccount(constants.TestAccountMnemonic)
+	if err != nil {
+		h.log.WithError(err).Error("failed to get private key from mnemonic")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	assetDetails.CurrManagerAddr = managerAddr
+
+	txID, err := h.makeAndSendAssetModifyTxn(assetDetails, privateKey)
+	if err != nil {
+		h.log.WithError(err).Error("failed to make and send asset modify txn")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	h.log.Debug("Transaction ID: ", txID)
+
+	resp := response{AssetID: 0, TXHash: txID}
+	respJSON, err := json.Marshal(resp)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	rw.Header().Set("Content-Type", "application/json")
+	rw.Write(respJSON)
+}
+
 func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request) {
 	body, err := ioutil.ReadAll(req.Body)
 
@@ -420,6 +467,38 @@ func (h *ManagerHandler) makeAndSendAssetCreateTxn(assetDetails models.AssetCrea
 		return "", err
 	}
 
+	// Wait for transaction to be confirmed
+	h.waitForConfirmation(h.algod, sendResponse.TxID)
+
+	return sendResponse.TxID, nil
+}
+
+func (h *ManagerHandler) makeAndSendAssetModifyTxn(assetDetails models.AssetModify, privateKey ed25519.PrivateKey) (string, error) {
+	txnParams, err := h.algod.SuggestedParams()
+	note := []byte(nil)
+	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
+
+	txn, err := transaction.MakeAssetConfigTxn(assetDetails.CurrManagerAddr, txnParams.Fee,
+		txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID, assetDetails.NewManagerAddr, assetDetails.NewReserveAddr, assetDetails.NewFreezeAddr, assetDetails.NewClawbackAddr, true)
+
+	if err != nil {
+		h.log.WithError(err).Error("failed to send txn")
+		return "", err
+	}
+
+	txid, stx, err := crypto.SignTransaction(privateKey, txn)
+	if err != nil {
+		h.log.WithError(err).Error("Failed to sign transaction")
+		return "", err
+	}
+	h.log.Debugf("Transaction ID: %s", txid)
+	// Broadcast the transaction to the network
+	sendResponse, err := h.algod.SendRawTransaction(stx, &algod.Header{Key: "Content-Type", Value: "application/x-binary"})
+	if err != nil {
+		h.log.WithError(err).Error("failed to send transaction")
+		return "", err
+	}
+	h.log.Infof("Transaction ID raw: %s", sendResponse.TxID)
 	// Wait for transaction to be confirmed
 	h.waitForConfirmation(h.algod, sendResponse.TxID)
 
