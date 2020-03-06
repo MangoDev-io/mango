@@ -50,6 +50,7 @@ func NewRouterService(logger *logrus.Logger, db *data.DatabaseService, kmd *kmd.
 		router.Post("/createAsset", managerHandler.CreateAsset)
 		router.Post("/destroyAsset", managerHandler.DestroyAsset)
 		router.Post("/freezeAsset", managerHandler.FreezeAsset)
+		router.Post("/revokeAsset", managerHandler.RevokeAsset)
 	})
 
 	// Public Routes
