@@ -239,6 +239,7 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 	rw.Write(respJSON)
 }
 
+// ModifyAsset is used to modify the mutable addresses linked to an asset
 func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) {
 	body, err := ioutil.ReadAll(req.Body)
 
@@ -258,7 +259,14 @@ func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	privateKey, managerAddr := h.recoverAccount(constants.TestAccountMnemonic)
+	_, claims, err := jwtauth.FromContext(req.Context())
+	if err != nil {
+		h.log.WithError(err).Error("failed to get jwt claims from context")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	privateKey, managerAddr := h.recoverAccount(claims["mnemonic"].(string))
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -293,6 +301,7 @@ func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) 
 	rw.Write(respJSON)
 }
 
+// DestroyAsset broadcasts a destroy asset transaction
 func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request) {
 	body, err := ioutil.ReadAll(req.Body)
 
@@ -312,7 +321,14 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	privateKey, managerAddr := h.recoverAccount(constants.TestAccountMnemonic)
+	_, claims, err := jwtauth.FromContext(req.Context())
+	if err != nil {
+		h.log.WithError(err).Error("failed to get jwt claims from context")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	privateKey, managerAddr := h.recoverAccount(claims["mnemonic"].(string)
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -340,6 +356,7 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 	rw.Write(respJSON)
 }
 
+// FreezeAsset is used to broadcast a freeze asset txn for some address
 func (h *ManagerHandler) FreezeAsset(rw http.ResponseWriter, req *http.Request) {
 	body, err := ioutil.ReadAll(req.Body)
 
@@ -359,7 +376,14 @@ func (h *ManagerHandler) FreezeAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	privateKey, freezeAddr := h.recoverAccount(constants.TestAccountMnemonic)
+	_, claims, err := jwtauth.FromContext(req.Context())
+	if err != nil {
+		h.log.WithError(err).Error("failed to get jwt claims from context")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	privateKey, managerAddr := h.recoverAccount(claims["mnemonic"].(string)
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -387,6 +411,7 @@ func (h *ManagerHandler) FreezeAsset(rw http.ResponseWriter, req *http.Request) 
 	rw.Write(respJSON)
 }
 
+// RevokeAsset broadcasts a revoke (clawback) txn for some address
 func (h *ManagerHandler) RevokeAsset(rw http.ResponseWriter, req *http.Request) {
 	body, err := ioutil.ReadAll(req.Body)
 
@@ -406,7 +431,14 @@ func (h *ManagerHandler) RevokeAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	privateKey, clawbackAddr := h.recoverAccount(constants.TestAccountMnemonic)
+	_, claims, err := jwtauth.FromContext(req.Context())
+	if err != nil {
+		h.log.WithError(err).Error("failed to get jwt claims from context")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	privateKey, managerAddr := h.recoverAccount(claims["mnemonic"].(string)
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
