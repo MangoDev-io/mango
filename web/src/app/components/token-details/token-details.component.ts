@@ -15,6 +15,6 @@ export class TokenDetailsComponent implements OnInit {
     ngOnInit(): void {}
 
     shortenAddress(addr: string): string {
-        if (addr) return addr.substring(0, 10) + '. . .' + addr.substring(48)
+        if (addr) return addr.substring(0, 8) + ' . . . ' + addr.substring(50)
     }
 }

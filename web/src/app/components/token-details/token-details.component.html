@@ -17,7 +17,7 @@
                             >
                         </div>
                     </div>
-                    <br />
+
                     <div class="columns">
                         <div class="column is-half">
                             <p class="is-pulled-right is-size-5">Asset Name:</p>
@@ -29,7 +29,7 @@
                             >
                         </div>
                     </div>
-                    <br />
+
                     <div class="columns">
                         <div class="column is-half">
                             <p class="is-pulled-right is-size-5">Total:</p>
@@ -41,7 +41,7 @@
                             >
                         </div>
                     </div>
-                    <br />
+
                     <div class="columns" *ngIf="currToken.url">
                         <div class="column is-half">
                             <p class="is-pulled-right is-size-5">URL:</p>
@@ -84,7 +84,7 @@
                             >
                         </div>
                     </div>
-                    <br />
+
                     <div class="columns">
                         <div class="column is-half">
                             <p class="is-pulled-right is-size-5">Decimals:</p>
@@ -96,7 +96,7 @@
                             >
                         </div>
                     </div>
-                    <br />
+
                     <div class="columns">
                         <div class="column is-half">
                             <p class="is-pulled-right is-size-5">
@@ -110,7 +110,7 @@
                             >
                         </div>
                     </div>
-                    <br />
+
                     <div
                         class="columns"
                         *ngIf="currToken.url && currToken.metadataHash"
@@ -129,96 +129,190 @@
                     </div>
                 </div>
             </div>
-            <div
-                class="columns has-text-centered tokenDetails__manage-addresses-first"
-            >
-                <div class="column">
-                    <p class="is-size-5 is-pulled-right">
-                        Creator Address:
-                    </p>
-                </div>
-                <div class="column">
-                    <a
-                        href="{{
-                            'https://testnet.algoexplorer.io/address/' +
-                                currToken.creatorAddr
-                        }}"
-                        ><span class="tag is-dark is-medium is-pulled-left">{{
-                            shortenAddress(currToken.creatorAddr)
-                        }}</span></a
+
+            <div class="columns">
+                <div class="column is-half">
+                    <div
+                        class="columns has-text-centered tokenDetails__manage-addresses-first"
                     >
+                        <div class="column">
+                            <p class="is-size-5 is-pulled-right">
+                                Creator Address:
+                            </p>
+                        </div>
+                        <div class="column">
+                            <a
+                                href="{{
+                                    'https://testnet.algoexplorer.io/address/' +
+                                        currToken.creatorAddr
+                                }}"
+                                ><span
+                                    class="tag is-dark is-medium is-pulled-left"
+                                    >{{
+                                        shortenAddress(currToken.creatorAddr)
+                                    }}</span
+                                ></a
+                            >
+                        </div>
+                    </div>
+                    <div class="columns has-text-centered">
+                        <div class="column">
+                            <p class="is-size-5 is-pulled-right">
+                                Manager Address:
+                            </p>
+                        </div>
+                        <div class="column">
+                            <a
+                                href="{{
+                                    'https://testnet.algoexplorer.io/address/' +
+                                        currToken.managerAddr
+                                }}"
+                                ><span
+                                    class="tag is-dark is-medium is-pulled-left"
+                                    >{{
+                                        shortenAddress(currToken.managerAddr)
+                                    }}</span
+                                ></a
+                            >
+                        </div>
+                    </div>
+                    <div class="columns has-text-centered">
+                        <div class="column">
+                            <p class="is-size-5 is-pulled-right">
+                                Reserve Address:
+                            </p>
+                        </div>
+                        <div class="column">
+                            <a
+                                href="{{
+                                    'https://testnet.algoexplorer.io/address/' +
+                                        currToken.reserveAddr
+                                }}"
+                                ><span
+                                    class="tag is-dark is-medium is-pulled-left"
+                                    >{{
+                                        shortenAddress(currToken.reserveAddr)
+                                    }}</span
+                                ></a
+                            >
+                        </div>
+                    </div>
+                    <div class="columns has-text-centered">
+                        <div class="column">
+                            <p class="is-size-5 is-pulled-right">
+                                Freeze Address:
+                            </p>
+                        </div>
+                        <div class="column">
+                            <a
+                                href="{{
+                                    'https://testnet.algoexplorer.io/address/' +
+                                        currToken.freezeAddr
+                                }}"
+                                ><span
+                                    class="tag is-dark is-medium is-pulled-left"
+                                    >{{
+                                        shortenAddress(currToken.freezeAddr)
+                                    }}</span
+                                ></a
+                            >
+                        </div>
+                    </div>
+                    <div class="columns has-text-centered">
+                        <div class="column">
+                            <p class="is-size-5 is-pulled-right">
+                                Clawback Address:
+                            </p>
+                        </div>
+                        <div class="column">
+                            <a
+                                href="{{
+                                    'https://testnet.algoexplorer.io/address/' +
+                                        currToken.clawbackAddr
+                                }}"
+                                ><span
+                                    class="tag is-dark is-medium is-pulled-left"
+                                    >{{
+                                        shortenAddress(currToken.clawbackAddr)
+                                    }}</span
+                                ></a
+                            >
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="columns has-text-centered">
-                <div class="column">
-                    <p class="is-size-5 is-pulled-right">
-                        Manager Address:
-                    </p>
-                </div>
-                <div class="column">
-                    <a
-                        href="{{
-                            'https://testnet.algoexplorer.io/address/' +
-                                currToken.managerAddr
-                        }}"
-                        ><span class="tag is-dark is-medium is-pulled-left">{{
-                            shortenAddress(currToken.managerAddr)
-                        }}</span></a
-                    >
-                </div>
-            </div>
-            <div class="columns has-text-centered">
-                <div class="column">
-                    <p class="is-size-5 is-pulled-right">
-                        Reserve Address:
-                    </p>
-                </div>
-                <div class="column">
-                    <a
-                        href="{{
-                            'https://testnet.algoexplorer.io/address/' +
-                                currToken.reserveAddr
-                        }}"
-                        ><span class="tag is-dark is-medium is-pulled-left">{{
-                            shortenAddress(currToken.reserveAddr)
-                        }}</span></a
-                    >
-                </div>
-            </div>
-            <div class="columns has-text-centered">
-                <div class="column">
-                    <p class="is-size-5 is-pulled-right">
-                        Freeze Address:
-                    </p>
-                </div>
-                <div class="column">
-                    <a
-                        href="{{
-                            'https://testnet.algoexplorer.io/address/' +
-                                currToken.freezeAddr
-                        }}"
-                        ><span class="tag is-dark is-medium is-pulled-left">{{
-                            shortenAddress(currToken.freezeAddr)
-                        }}</span></a
-                    >
-                </div>
-            </div>
-            <div class="columns has-text-centered">
-                <div class="column">
-                    <p class="is-size-5 is-pulled-right">
-                        Clawback Address:
-                    </p>
-                </div>
-                <div class="column">
-                    <a
-                        href="{{
-                            'https://testnet.algoexplorer.io/address/' +
-                                currToken.clawbackAddr
-                        }}"
-                        ><span class="tag is-dark is-medium is-pulled-left">{{
-                            shortenAddress(currToken.clawbackAddr)
-                        }}</span></a
-                    >
+                <div class="column is-half">
+                    <div class="token-details__button-group columns">
+                        <!-- <div class="column is-one-quarter"></div> -->
+                        <div class="column three-quarters">
+                            <button class="button is-info">
+                                Freeze
+                            </button>
+                            <button class="button is-light">
+                                Revoke
+                            </button>
+                            <button class="button is-warning">
+                                Modify
+                            </button>
+                            <button class="button is-danger">
+                                Destroy
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="token-details__modify-form">
+                        <div class="columns">
+                            <div class="column is-half">
+                                <p class="is-pulled-right is-size-5">
+                                    New Manager Address:
+                                </p>
+                            </div>
+                            <div class="column is-half token-details__form">
+                                <input
+                                    class="input tag is-medium"
+                                    type="text"
+                                />
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column is-half">
+                                <p class="is-pulled-right is-size-5">
+                                    New Reserve Address:
+                                </p>
+                            </div>
+                            <div class="column is-half token-details__form">
+                                <input
+                                    class="input tag is-medium"
+                                    type="text"
+                                />
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column is-half">
+                                <p class="is-pulled-right is-size-5">
+                                    New Freeze Address:
+                                </p>
+                            </div>
+                            <div class="column is-half token-details__form">
+                                <input
+                                    class="input tag is-medium"
+                                    type="text"
+                                />
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column is-half">
+                                <p class="is-pulled-right is-size-5">
+                                    New Clawback Address:
+                                </p>
+                            </div>
+                            <div class="column is-half token-details__form">
+                                <input
+                                    class="input tag is-medium"
+                                    type="text"
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

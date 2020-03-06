@@ -23,11 +23,11 @@ export class StateService {
         15,
         false,
         'https://usdtether.io',
-        '',
-        '',
-        '',
-        '',
-        ''
+        'aldskfjlakjsdf;',
+        '2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY',
+        '2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY',
+        '2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY',
+        '2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY'
     )
 
     public tokenList: Token[] = [this.currToken, this.currToken, this.currToken]
