@@ -275,6 +275,13 @@ func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) 
 	}
 	h.log.Debug("Transaction ID: ", txID)
 
+	err = h.db.UpdateAssetAddresses(assetDetails.NewManagerAddr, assetDetails.NewReserveAddr, assetDetails.NewFreezeAddr, assetDetails.NewClawbackAddr)
+	if err != nil {
+		h.log.WithError(err).Error("failed to update asset addresses")
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	resp := response{AssetID: 0, TXHash: txID}
 	respJSON, err := json.Marshal(resp)
 	if err != nil {

@@ -22,6 +22,7 @@ github.com/google/go-querystring v1.0.0 h1:Xkwi/a1rcvNg1PPYe5vI8GbeBY/jrVuDX5ASu
 github.com/google/go-querystring v1.0.0/go.mod h1:odCYkC5MyYFN7vkCjXpyrEuKhc/BUO6wN/zVPAxq5ck=
 github.com/haardikk21/algorand-asset-manager v0.0.0-20200302042032-5f982287df35 h1:l49ZxTklOzyw9ERag3pBMSAu+eXzR6P3lfxnJMJfYyE=
 github.com/haardikk21/algorand-asset-manager v0.0.0-20200304030436-d5580cb7cc4c h1:lhg4PCreMjio6rfPJ1JiNfHfDVJ9RoJ6ZkjgQotWXfY=
+github.com/haardikk21/algorand-asset-manager v0.0.0-20200306025441-13af7e00924c h1:VQbKUso5odQJ8vfcMK7KSdIYrHgIxSG+SAjKg8lp5zk=
 github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD/E=
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/kelseyhightower/envconfig v1.4.0 h1:Im6hONhd3pLkfDFsbRgu68RDNkGF1r3dvMUtDTo2cv8=

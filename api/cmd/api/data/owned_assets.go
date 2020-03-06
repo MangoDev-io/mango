@@ -23,9 +23,8 @@ func (s *DatabaseService) InsertNewAsset(creatorAddr, managerAddr, reserveAddr, 
 }
 
 // UpdateAssetAddresses updates the mutable addresses linked to an asset
-func (s *DatabaseService) UpdateAssetAddresses(creatorAddr, managerAddr, reserveAddr, freezeAddr, clawbackAddr, assetID string) error {
+func (s *DatabaseService) UpdateAssetAddresses(managerAddr, reserveAddr, freezeAddr, clawbackAddr, assetID string) error {
 	var record models.OwnedAssets
-	record.CreatorAddress = creatorAddr
 	record.ManagerAddress = managerAddr
 	record.ReserveAddress = reserveAddr
 	record.FreezeAddress = freezeAddr
@@ -34,6 +33,7 @@ func (s *DatabaseService) UpdateAssetAddresses(creatorAddr, managerAddr, reserve
 
 	_, err := s.Model(&record).
 		Where("asset_id = ?asset_id").
+		Column("manager_address", "reserve_address", "freeze_address", "clawback_address").
 		Update()
 
 	if err != nil {
