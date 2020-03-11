@@ -35,6 +35,7 @@ export class TokenDetailsComponent implements OnInit {
 
     assetRequest = new AssetRequest(); 
     handleAssetRequest() {
+        this.assetRequest.assetId = this.currToken.assetId
         switch (this.selectedButton) {
             case 1: {
                 console.log("Freeze request: " + JSON.stringify(this.assetRequest))
