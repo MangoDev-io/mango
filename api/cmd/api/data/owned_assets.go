@@ -1,6 +1,10 @@
 package data
 
-import "github.com/haardikk21/algorand-asset-manager/api/cmd/api/models"
+import (
+	"strconv"
+
+	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/models"
+)
 
 // InsertNewAsset inserts a new asset into the database
 func (s *DatabaseService) InsertNewAsset(creatorAddr, managerAddr, reserveAddr, freezeAddr, clawbackAddr, assetID string) error {
@@ -35,6 +39,22 @@ func (s *DatabaseService) UpdateAssetAddresses(managerAddr, reserveAddr, freezeA
 		Where("asset_id = ?asset_id").
 		Column("manager_address", "reserve_address", "freeze_address", "clawback_address").
 		Update()
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// DeleteAssetByAssetID removes an OwnedAsset listing from the database
+func (s *DatabaseService) DeleteAssetByAssetID(assetID uint64) error {
+	var record models.OwnedAssets
+	record.AssetId = strconv.FormatUint(assetID, 10)
+
+	_, err := s.Model(&record).
+		Where("asset_id = ?asset_id").
+		Delete()
 
 	if err != nil {
 		return err

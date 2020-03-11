@@ -342,6 +342,13 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 	}
 	h.log.Debug("Transaction ID: ", txID)
 
+	err = h.db.DeleteAssetByAssetID(assetDetails.AssetID)
+	if err != nil {
+		h.log.WithError(err).Error("failed to delete asset")
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	resp := response{AssetID: 0, TXHash: txID}
 	respJSON, err := json.Marshal(resp)
 	if err != nil {
