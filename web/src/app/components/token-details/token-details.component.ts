@@ -13,6 +13,12 @@ export class TokenDetailsComponent implements OnInit {
     currToken: Token
 
     selectedButton = 1
+    assetManagementTabs = {
+        "1": "Freeze",
+        "2": "Revoke",
+        "3": "Modify",
+        "4": "Destroy"
+    }
 
     constructor(private stateService: StateService) {}
 
@@ -24,7 +30,7 @@ export class TokenDetailsComponent implements OnInit {
 
     updateSelectedButton(b: number) {
         this.selectedButton = b
-        console.log(this.selectedButton)
+        console.log("Selected tab: " + this.assetManagementTabs[this.selectedButton])
     }
 
     assetRequest = new AssetRequest(); 
