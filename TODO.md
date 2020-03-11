@@ -1,7 +1,13 @@
+### General
+
+- Make github org
+
 ### WEB
 
 - Add loading icon when waiting for api calls
   - If call fails, display error message to user
+- Add github link in footer
+- add "we never store your pvt key" somewhere
 
 ### API
 
