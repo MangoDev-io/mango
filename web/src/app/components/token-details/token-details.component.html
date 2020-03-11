@@ -42,18 +42,13 @@
                         </div>
                     </div>
 
-                    <div class="columns" *ngIf="currToken.url">
-                        <div class="column is-half">
-                            <p class="is-pulled-right is-size-5">URL:</p>
-                        </div>
-                        <div class="column is-half">
-                            <a href="{{ currToken.url }}"
-                                ><span
-                                    class="tag is-dark is-medium is-pulled-left"
-                                    >{{ currToken.url }}</span
-                                ></a
-                            >
-                        </div>
+                    <div *ngIf="currToken.url">
+                        <p class="is-size-5">URL:</p>
+                        <a href="{{ currToken.url }}"
+                            ><span class="tag is-dark is-medium">{{
+                                currToken.url
+                            }}</span></a
+                        >
                     </div>
                     <div
                         class="columns"
@@ -111,21 +106,13 @@
                         </div>
                     </div>
 
-                    <div
-                        class="columns"
-                        *ngIf="currToken.url && currToken.metadataHash"
-                    >
-                        <div class="column is-half">
-                            <p class="is-pulled-right is-size-5">
-                                Metadata Hash:
-                            </p>
-                        </div>
-                        <div class="column is-half">
-                            <span
-                                class="tag is-dark is-medium is-pulled-left"
-                                >{{ currToken.metadataHash }}</span
-                            >
-                        </div>
+                    <div *ngIf="currToken.url && currToken.metadataHash">
+                        <p class="is-size-5">
+                            Metadata Hash:
+                        </p>
+                        <span class="tag is-dark is-medium">{{
+                            currToken.metadataHash
+                        }}</span>
                     </div>
                 </div>
             </div>

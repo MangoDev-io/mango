@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core'
 import { Token } from './token'
 import { AssetRequest } from './assetRequest'
-import { BehaviorSubject, Observable } from 'rxjs'
-import {
-    HttpClient,
-    HttpHeaderResponse,
-    HttpHeaders,
-} from '@angular/common/http'
+import { BehaviorSubject, Observable, from } from 'rxjs'
+import { HttpClient, HttpHeaders } from '@angular/common/http'
+import { environment } from '../environments/environment'
+import algosdk from 'algosdk'
+import { AssetListing } from './asset-listing'
 
 @Injectable({
     providedIn: 'root',
@@ -15,7 +14,7 @@ export class StateService {
     private baseURL = 'http://localhost:5000'
 
     public currToken = new Token({
-        assetId: '324234',
+        assetId: '212945',
         creatorAddr:
             '2LX7ZMR7SMDONF3FLD2SM5KUSKUWYKDH4WS76AW26US3Y3QB4Z4UROVFTY',
         assetName: 'USD Tether',
@@ -42,6 +41,12 @@ export class StateService {
 
     private selectedTokenSubject = new BehaviorSubject<Token>(null)
     private showCreateSubject = new BehaviorSubject<boolean>(false)
+
+    private algorandClient = new algosdk.Algod(
+        environment.algorandToken,
+        environment.algorandAddress,
+        ''
+    )
 
     constructor(private httpClient: HttpClient) {
         this.showCreateSubject.next(true)
@@ -71,6 +76,21 @@ export class StateService {
         return this.httpClient.post(this.baseURL + '/encodeMnemonic', {
             mnemonic: m,
         })
+    }
+
+    getAssetListings(): Observable<AssetListing[]> {
+        let httpHeaders = new HttpHeaders({
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + this.authToken,
+        })
+        let options = {
+            headers: httpHeaders,
+        }
+
+        return this.httpClient.get<AssetListing[]>(
+            this.baseURL + '/assets',
+            options
+        )
     }
 
     createAsset(a: Token) {
@@ -132,5 +152,8 @@ export class StateService {
 
         return this.httpClient.post(this.baseURL + '/destroyAsset', a, options)
     }
-}
 
+    getAssetDetails(assetId: string) {
+        return this.algorandClient.assetInformation(assetId)
+    }
+}

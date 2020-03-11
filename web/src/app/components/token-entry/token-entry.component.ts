@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, ElementRef } from '@angular/core'
 import { StateService } from 'src/app/state.service'
 import { Token } from 'src/app/token'
+import { ThrowStmt } from '@angular/compiler'
 
 @Component({
     selector: 'app-token-entry',
@@ -9,16 +10,22 @@ import { Token } from 'src/app/token'
 })
 export class TokenEntryComponent implements OnInit {
     @Input()
-    public token: Token
+    assetId: string
 
     @Input()
-    public entryId: any
+    permissions: string[]
 
-    public gradient: string
+    @Input()
+    entryId: any
+
+    token: Token
+
+    gradient: string
 
     constructor(private stateService: StateService) {}
 
     ngOnInit() {
+        this.getAssetDetails(this.assetId)
         this.generateGradient()
     }
 
@@ -60,5 +67,24 @@ export class TokenEntryComponent implements OnInit {
 
         let curEntry = document.getElementById(`tokenEntry__${this.entryId}`)
         curEntry.firstElementChild.classList.add('active')
+    }
+
+    async getAssetDetails(assetId: string) {
+        let assetInfo = await this.stateService.getAssetDetails(assetId)
+        this.token = new Token({
+            assetId: assetId,
+            creatorAddr: assetInfo.creator,
+            assetName: assetInfo.assetname,
+            unitName: assetInfo.unitname,
+            totalIssuance: assetInfo.total,
+            decimals: assetInfo.decimals,
+            defaultFrozen: assetInfo.defaultfrozen,
+            url: assetInfo.url,
+            metadataHash: assetInfo.metadatahash,
+            managerAddr: assetInfo.managerkey,
+            reserveAddr: assetInfo.reserveaddr,
+            freezeAddr: assetInfo.clawbackaddr,
+            permissions: this.permissions,
+        })
     }
 }

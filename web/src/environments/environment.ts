@@ -3,8 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
-};
+    production: false,
+    algorandAddress: 'https://testnet-algorand.api.purestake.io/ps1',
+    algorandToken: { 'X-API-Key': 'FS0ZoE4JAe6MWL1CiJytR9nktogYSVC640C8fgk0' },
+}
 
 /*
  * For easier debugging in development mode, you can import the following file
