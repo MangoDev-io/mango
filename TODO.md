@@ -8,12 +8,14 @@
   - If call fails, display error message to user
 - Add github link in footer
 - add "we never store your pvt key" somewhere
+- "refresh" asset listings on create and destroy
+- notifications on sucessful calls
+- confirmation msg for destroy
 
 ### API
 
 - Add proper error in response of API endpoints
 - Clear redundant error checking
-- Delete entry from database on asset destroy
 
 ### Reach goals
 
