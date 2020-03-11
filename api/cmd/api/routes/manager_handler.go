@@ -637,7 +637,7 @@ func (h *ManagerHandler) makeAndSendAssetRevokeTxn(assetDetails models.AssetRevo
 	note := []byte(nil)
 	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
 
-	txn, err := transaction.MakeAssetRevocationTxn(assetDetails.ClawbackAddr, assetDetails.TargetAddr, assetDetails.RecepientAddr, assetDetails.Amount, txnParams.Fee,
+	txn, err := transaction.MakeAssetRevocationTxn(assetDetails.ClawbackAddr, assetDetails.TargetAddr, assetDetails.RecipientAddr, assetDetails.Amount, txnParams.Fee,
 		txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID)
 
 	if err != nil {

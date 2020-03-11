@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core'
 import { Token } from './token'
+import { AssetRequest } from './assetRequest'
 import { BehaviorSubject, Observable } from 'rxjs'
 import {
     HttpClient,
@@ -83,4 +84,53 @@ export class StateService {
 
         return this.httpClient.post(this.baseURL + '/createAsset', a, options)
     }
+
+    freezeAsset(a: AssetRequest) {
+        let httpHeaders = new HttpHeaders({
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + this.authToken,
+        })
+        let options = {
+            headers: httpHeaders,
+        }
+
+        return this.httpClient.post(this.baseURL + '/freezeAsset', a, options)
+    }
+
+    revokeAsset(a: AssetRequest) {
+        let httpHeaders = new HttpHeaders({
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + this.authToken,
+        })
+        let options = {
+            headers: httpHeaders,
+        }
+
+        return this.httpClient.post(this.baseURL + '/revokeAsset', a, options)
+    }
+
+    modifyAsset(a: AssetRequest) {
+        let httpHeaders = new HttpHeaders({
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + this.authToken,
+        })
+        let options = {
+            headers: httpHeaders,
+        }
+
+        return this.httpClient.post(this.baseURL + '/modifyAsset', a, options)
+    }
+
+    destroyAsset(a: AssetRequest) {
+        let httpHeaders = new HttpHeaders({
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + this.authToken,
+        })
+        let options = {
+            headers: httpHeaders,
+        }
+
+        return this.httpClient.post(this.baseURL + '/destroyAsset', a, options)
+    }
 }
+

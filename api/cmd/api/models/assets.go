@@ -45,7 +45,7 @@ type AssetRevoke struct {
 	AssetID       uint64 `json:"assetId"`
 	ClawbackAddr  string `json:"clawbackAddr"`
 	TargetAddr    string `json:"targetAddr"`
-	RecepientAddr string `json:"recepientAddr"`
+	RecipientAddr string `json:"recipientAddr"`
 	Amount        uint64 `json:"amount"`
 }
 

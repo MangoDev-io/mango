@@ -1,5 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core'
+import { StateService } from 'src/app/state.service'
 import { Token } from '../../token'
+import { AssetRequest } from '../../assetRequest'
 
 @Component({
     selector: 'app-token-details',
@@ -12,7 +14,7 @@ export class TokenDetailsComponent implements OnInit {
 
     selectedButton = 1
 
-    constructor() {}
+    constructor(private stateService: StateService) {}
 
     ngOnInit(): void {}
 
@@ -23,5 +25,42 @@ export class TokenDetailsComponent implements OnInit {
     updateSelectedButton(b: number) {
         this.selectedButton = b
         console.log(this.selectedButton)
+    }
+
+    assetRequest = new AssetRequest(); 
+    handleAssetRequest() {
+        switch (this.selectedButton) {
+            case 1: {
+                console.log("Freeze request: " + JSON.stringify(this.assetRequest))
+                this.stateService.freezeAsset(this.assetRequest).subscribe(x => {
+                    console.log(x)
+                })
+                break;
+            }
+            
+            case 2: {
+                console.log("Revoke request: " + JSON.stringify(this.assetRequest))
+                this.stateService.revokeAsset(this.assetRequest).subscribe(x => {
+                    console.log(x)
+                })
+                break;
+            }
+
+            case 3: {
+                console.log("Modify request: " + JSON.stringify(this.assetRequest))
+                this.stateService.modifyAsset(this.assetRequest).subscribe(x => {
+                    console.log(x)
+                })
+                break;
+            }
+
+            case 4: {
+                console.log("Destroy request: " + JSON.stringify(this.assetRequest))
+                this.stateService.destroyAsset(this.assetRequest).subscribe(x => {
+                    console.log(x)
+                })
+                break;
+            }
+        }
     }
 }
