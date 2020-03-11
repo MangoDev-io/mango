@@ -12,7 +12,7 @@ import { AssetListing } from './asset-listing'
 })
 export class StateService {
     //private baseURL = 'http://localhost:5000'
-    private baseURL = 'http://api.mangodev.io'
+    private baseURL = 'https://api.mangodev.io'
 
     private authToken: string
 
