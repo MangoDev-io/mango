@@ -145,13 +145,12 @@ func (h *ManagerHandler) GetAssets(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	// privateKey, address, err := h.getPrivKeyAndAddressFromMnemonic(claims["mnemonic"].(string))
-	_, address := h.recoverAccount(claims["mnemonic"].(string))
-
+	_, address, err := h.recoverAccount(claims["mnemonic"].(string))
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
 
-		respJSON := makeResponseJSON("error", "failed to unmarshal request body", 0, "")
+		respJSON := makeResponseJSON("error", "failed to recover account from mnemonic", 0, "")
 		rw.Write(respJSON)
 		return
 	}
@@ -161,7 +160,7 @@ func (h *ManagerHandler) GetAssets(rw http.ResponseWriter, req *http.Request) {
 		h.log.WithError(err).Error("failed to select rows")
 		rw.WriteHeader(http.StatusBadRequest)
 
-		respJSON := makeResponseJSON("error", "failed to select assets for address "+request.Address, 0, "")
+		respJSON := makeResponseJSON("error", "failed to select assets for address "+address, 0, "")
 		rw.Write(respJSON)
 		return
 	}
