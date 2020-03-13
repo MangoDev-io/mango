@@ -1,6 +1,8 @@
 ### WEB
 
 - confirmation msg for destroy
+- clear management forms on submit
+- why no notification on destroy???
 
 ### API
 
