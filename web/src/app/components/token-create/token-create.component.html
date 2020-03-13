@@ -185,7 +185,11 @@
 
             <div class="field is-grouped is-grouped-centered">
                 <p class="control">
-                    <a class="button is-warning" (click)="createAsset()">
+                    <a
+                        class="button is-warning"
+                        (click)="createAsset()"
+                        [ngClass]="getButtonLoadingClass()"
+                    >
                         Create
                     </a>
                 </p>
