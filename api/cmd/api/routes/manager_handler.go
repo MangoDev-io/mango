@@ -32,6 +32,8 @@ type ManagerHandler struct {
 }
 
 type response struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
 	AssetID uint64 `json:"assetId"`
 	TXHash  string `json:"txHash"`
 }
@@ -46,13 +48,38 @@ func NewManagerHandler(log *logrus.Logger, db *data.DatabaseService, algod *algo
 	}
 }
 
+func makeResponseJSON(status string, message string, assetID uint64, txHash string) []byte {
+	res, _ := json.Marshal(response{
+		Status:  status,
+		Message: message,
+		AssetID: assetID,
+		TXHash:  txHash,
+	})
+
+	return res
+}
+
 // EncodeMnemonic accepts JSON body of the form { "mnemonic" : "abcd" }
 // and converts it into a JWT and send it to web
 func (h *ManagerHandler) EncodeMnemonic(rw http.ResponseWriter, req *http.Request) {
 	body, err := ioutil.ReadAll(req.Body)
+
+	var res response
+
 	if err != nil {
 		h.log.WithError(err).Error("failed to read body")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		res = response{
+			Status:  "error",
+			Message: "Failed to read request body",
+			AssetID: 0,
+			TXHash:  "",
+		}
+		rw.Header().Set("Content-Type", "application/json")
+
+		respJSON, _ := json.Marshal(res)
+		rw.Write(respJSON)
 		return
 	}
 
@@ -75,21 +102,31 @@ func (h *ManagerHandler) EncodeMnemonic(rw http.ResponseWriter, req *http.Reques
 		return
 	}
 
-	type token struct {
-		Token string `json:"token"`
+	type tokenResponse struct {
+		Token   string `json:"token"`
+		Status  string `json:"status"`
+		Message string `json:"message"`
 	}
 
-	var response token
+	var response tokenResponse
 	response.Token = tokenString
+	response.Status = "success"
+	response.Message = ""
 
+	rw.Header().Set("Content-Type", "application/json")
 	respJSON, err := json.Marshal(response)
+
 	if err != nil {
-		h.log.WithError(err).Error("failed to marshal body")
+		h.log.WithError(err).Error("failed to marshal response body")
 		rw.WriteHeader(http.StatusInternalServerError)
+		response.Status = "error"
+		response.Message = "failed to marshal token response body"
+
+		respJSON, _ := json.Marshal(response)
+		rw.Write(respJSON)
 		return
 	}
 
-	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(respJSON)
 }
 
@@ -100,15 +137,21 @@ func (h *ManagerHandler) GetAssets(rw http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		h.log.WithError(err).Error("failed to get jwt claims from context")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to read request body", 0, "")
+		rw.Write(respJSON)
+
 		return
 	}
 
 	// privateKey, address, err := h.getPrivKeyAndAddressFromMnemonic(claims["mnemonic"].(string))
-	_, address := h.recoverAccount(claims["mnemonic"].(string))
-
+	_, address, err := h.recoverAccount(claims["mnemonic"].(string))
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to recover account from mnemonic", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -116,6 +159,9 @@ func (h *ManagerHandler) GetAssets(rw http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		h.log.WithError(err).Error("failed to select rows")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to select assets for address "+address, 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -147,6 +193,9 @@ func (h *ManagerHandler) GetAssets(rw http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		h.log.WithError(err).Error("failed to marshal owned assets")
 		rw.WriteHeader(http.StatusInternalServerError)
+
+		respJSON := makeResponseJSON("error", "failed to marshal owned assets to JSON", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -161,6 +210,8 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 
 	if err != nil {
 		rw.WriteHeader(http.StatusBadRequest)
+		respJSON := makeResponseJSON("error", "failed to read request body", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -169,8 +220,11 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 	err = json.Unmarshal(body, &assetDetails)
 
 	if err != nil {
-		h.log.WithError(err).Error("failed to unmarshal body")
+		h.log.WithError(err).Error("failed to unmarshal request body")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to unmarshal request body", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -178,15 +232,21 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		h.log.WithError(err).Error("failed to get jwt claims from context")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to get jwt claims from context", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
 	// privateKey, address, err := h.getPrivKeyAndAddressFromMnemonic(claims["mnemonic"].(string))
-	privateKey, address := h.recoverAccount(claims["mnemonic"].(string))
+	privateKey, address, err := h.recoverAccount(claims["mnemonic"].(string))
 
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to recover account from mnemonic", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -196,6 +256,9 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		h.log.WithError(err).Error("failed to make and send asset create txn")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to make and send asset create txn", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -205,6 +268,9 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		h.log.WithError(err).Error("failed to get account information")
 		rw.WriteHeader(http.StatusInternalServerError)
+
+		respJSON := makeResponseJSON("error", "failed to get account information", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 	assetID := uint64(0)
@@ -222,6 +288,9 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		h.log.WithError(err).Error("failed to insert new asset in database")
 		rw.WriteHeader(http.StatusInternalServerError)
+
+		respJSON := makeResponseJSON("error", "failed to insert asset in database", assetID, txID)
+		rw.Write(respJSON)
 		return
 	}
 
@@ -229,6 +298,8 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 	respJSON, err := json.Marshal(resp)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
+		respJSON := makeResponseJSON("error", "failed to marshal response body", assetID, txID)
+		rw.Write(respJSON)
 		return
 	}
 
@@ -243,6 +314,9 @@ func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		h.log.WithError(err).Error("unable to read request body")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to read request body", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -253,6 +327,9 @@ func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		h.log.WithError(err).Error("unable to unmarshal request into JSON")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to unmarshal request body", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -260,13 +337,19 @@ func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		h.log.WithError(err).Error("failed to get jwt claims from context")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to get jwt claims from context", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
-	privateKey, managerAddr := h.recoverAccount(claims["mnemonic"].(string))
+	privateKey, managerAddr, err := h.recoverAccount(claims["mnemonic"].(string))
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to recover account from mnemonic", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -276,6 +359,9 @@ func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		h.log.WithError(err).Error("failed to make and send asset modify txn")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to make and send asset modify txn", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 	h.log.Debug("Transaction ID: ", txID)
@@ -284,6 +370,9 @@ func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		h.log.WithError(err).Error("failed to update asset addresses")
 		rw.WriteHeader(http.StatusInternalServerError)
+
+		respJSON := makeResponseJSON("error", "failed to update asset in database", assetDetails.AssetID, txID)
+		rw.Write(respJSON)
 		return
 	}
 
@@ -291,6 +380,8 @@ func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) 
 	respJSON, err := json.Marshal(resp)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
+		respJSON := makeResponseJSON("error", "failed to marshal request body", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -305,6 +396,9 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 	if err != nil {
 		h.log.WithError(err).Error("unable to read request body")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to read request body", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -315,6 +409,9 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 	if err != nil {
 		h.log.WithError(err).Error("unable to unmarshal request into JSON")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to unmarshal request body", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -322,13 +419,19 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 	if err != nil {
 		h.log.WithError(err).Error("failed to get jwt claims from context")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to get jwt claims from context", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
-	privateKey, managerAddr := h.recoverAccount(claims["mnemonic"].(string))
+	privateKey, managerAddr, err := h.recoverAccount(claims["mnemonic"].(string))
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to recover account from mnemonic", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -337,7 +440,10 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 	txID, err := h.makeAndSendAssetDestroyTxn(assetDetails, privateKey)
 	if err != nil {
 		h.log.WithError(err).Error("failed to make and send asset destroy txn")
-		rw.WriteHeader(http.StatusBadRequest)
+		rw.WriteHeader(http.StatusInternalServerError)
+
+		respJSON := makeResponseJSON("error", "failed to make and send asset destroy txn", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 	h.log.Debug("Transaction ID: ", txID)
@@ -353,6 +459,8 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 	respJSON, err := json.Marshal(resp)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
+		respJSON := makeResponseJSON("error", "failed to marshal response body", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -367,6 +475,9 @@ func (h *ManagerHandler) FreezeAsset(rw http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		h.log.WithError(err).Error("unable to read request body")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to read request body", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -377,6 +488,9 @@ func (h *ManagerHandler) FreezeAsset(rw http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		h.log.WithError(err).Error("unable to unmarshal request into JSON")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to unmarshal request body", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -384,13 +498,19 @@ func (h *ManagerHandler) FreezeAsset(rw http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		h.log.WithError(err).Error("failed to get jwt claims from context")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to get jwt claims from context", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
-	privateKey, freezeAddr := h.recoverAccount(claims["mnemonic"].(string))
+	privateKey, freezeAddr, err := h.recoverAccount(claims["mnemonic"].(string))
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to recover account from mnemonic", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -400,6 +520,9 @@ func (h *ManagerHandler) FreezeAsset(rw http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		h.log.WithError(err).Error("failed to make and send asset freeze txn")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to make and send asset freeze txn", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 	h.log.Debug("Transaction ID: ", txID)
@@ -408,6 +531,8 @@ func (h *ManagerHandler) FreezeAsset(rw http.ResponseWriter, req *http.Request) 
 	respJSON, err := json.Marshal(resp)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
+		respJSON := makeResponseJSON("error", "failed to marshal response body", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -422,6 +547,9 @@ func (h *ManagerHandler) RevokeAsset(rw http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		h.log.WithError(err).Error("unable to read request body")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to read request body", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -432,6 +560,9 @@ func (h *ManagerHandler) RevokeAsset(rw http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		h.log.WithError(err).Error("unable to unmarshal request into JSON")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to unmarshal request body", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -439,13 +570,19 @@ func (h *ManagerHandler) RevokeAsset(rw http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		h.log.WithError(err).Error("failed to get jwt claims from context")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to get jwt claims from context", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
-	privateKey, clawbackAddr := h.recoverAccount(claims["mnemonic"].(string))
+	privateKey, clawbackAddr, err := h.recoverAccount(claims["mnemonic"].(string))
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to recover account from mnemonic", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -455,6 +592,9 @@ func (h *ManagerHandler) RevokeAsset(rw http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		h.log.WithError(err).Error("failed to make and send asset revoke txn")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON := makeResponseJSON("error", "failed to make and send asset revoke txn", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 	h.log.Debug("Transaction ID: ", txID)
@@ -463,6 +603,8 @@ func (h *ManagerHandler) RevokeAsset(rw http.ResponseWriter, req *http.Request) 
 	respJSON, err := json.Marshal(resp)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
+		respJSON := makeResponseJSON("error", "failed to marshal response body", 0, "")
+		rw.Write(respJSON)
 		return
 	}
 
@@ -470,7 +612,7 @@ func (h *ManagerHandler) RevokeAsset(rw http.ResponseWriter, req *http.Request) 
 	rw.Write(respJSON)
 }
 
-func (h *ManagerHandler) waitForConfirmation(algodClient *algod.Client, txID string) {
+func (h *ManagerHandler) waitForConfirmation(algodClient *algod.Client, txID string) error {
 	for {
 		pt, err := algodClient.PendingTransactionInformation(txID)
 		if err != nil {
@@ -484,18 +626,20 @@ func (h *ManagerHandler) waitForConfirmation(algodClient *algod.Client, txID str
 		nodeStatus, err := algodClient.Status()
 		if err != nil {
 			h.log.WithError(err).Error("error getting algod status")
-			return
+			return err
 		}
 		algodClient.StatusAfterBlock(nodeStatus.LastRound + 1)
 	}
+
+	return nil
 }
 
 // Jason Weathersby's function utility function to recover account and return sk and address :)
-func (h *ManagerHandler) recoverAccount(userMnemonic string) (ed25519.PrivateKey, string) {
+func (h *ManagerHandler) recoverAccount(userMnemonic string) (ed25519.PrivateKey, string, error) {
 	sk, err := mnemonic.ToPrivateKey(userMnemonic)
 	if err != nil {
 		h.log.WithError(err).Error("error recovering account")
-		return nil, ""
+		return nil, "", err
 	}
 	pk := sk.Public()
 	var a types.Address
@@ -503,7 +647,7 @@ func (h *ManagerHandler) recoverAccount(userMnemonic string) (ed25519.PrivateKey
 	copy(a[:], cpk[:])
 	h.log.Debugf("Address: %s\n", a.String())
 	address := a.String()
-	return sk, address
+	return sk, address, nil
 }
 
 // Making and Sending Transactions:
@@ -535,7 +679,10 @@ func (h *ManagerHandler) makeAndSendAssetCreateTxn(assetDetails models.AssetCrea
 	}
 
 	// Wait for transaction to be confirmed
-	h.waitForConfirmation(h.algod, sendResponse.TxID)
+	err = h.waitForConfirmation(h.algod, sendResponse.TxID)
+	if err != nil {
+		return "", err
+	}
 
 	return sendResponse.TxID, nil
 }
@@ -567,7 +714,10 @@ func (h *ManagerHandler) makeAndSendAssetModifyTxn(assetDetails models.AssetModi
 	}
 	h.log.Infof("Transaction ID raw: %s", sendResponse.TxID)
 	// Wait for transaction to be confirmed
-	h.waitForConfirmation(h.algod, sendResponse.TxID)
+	err = h.waitForConfirmation(h.algod, sendResponse.TxID)
+	if err != nil {
+		return "", err
+	}
 
 	return sendResponse.TxID, nil
 }
@@ -599,7 +749,10 @@ func (h *ManagerHandler) makeAndSendAssetDestroyTxn(assetDetails models.AssetDes
 	}
 	h.log.Infof("Transaction ID raw: %s", sendResponse.TxID)
 	// Wait for transaction to be confirmed
-	h.waitForConfirmation(h.algod, sendResponse.TxID)
+	err = h.waitForConfirmation(h.algod, sendResponse.TxID)
+	if err != nil {
+		return "", err
+	}
 
 	return sendResponse.TxID, nil
 }
@@ -631,7 +784,10 @@ func (h *ManagerHandler) makeAndSendAssetFreezeTxn(assetDetails models.AssetFree
 	}
 	h.log.Infof("Transaction ID raw: %s", sendResponse.TxID)
 	// Wait for transaction to be confirmed
-	h.waitForConfirmation(h.algod, sendResponse.TxID)
+	err = h.waitForConfirmation(h.algod, sendResponse.TxID)
+	if err != nil {
+		return "", err
+	}
 
 	return sendResponse.TxID, nil
 }
@@ -663,7 +819,10 @@ func (h *ManagerHandler) makeAndSendAssetRevokeTxn(assetDetails models.AssetRevo
 	}
 	h.log.Infof("Transaction ID raw: %s", sendResponse.TxID)
 	// Wait for transaction to be confirmed
-	h.waitForConfirmation(h.algod, sendResponse.TxID)
+	err = h.waitForConfirmation(h.algod, sendResponse.TxID)
+	if err != nil {
+		return "", err
+	}
 
 	return sendResponse.TxID, nil
 }

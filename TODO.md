@@ -14,8 +14,7 @@
 
 ### API
 
-- Add proper error in response of API endpoints
-- Clear redundant error checking
+- Abstract away sending of different transactions into one function
 
 ### Reach goals
 
