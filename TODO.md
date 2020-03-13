@@ -3,6 +3,7 @@
 - confirmation msg for destroy
 - clear management forms on submit
 - why no notification on destroy???
+- redirect to /login on /manage reload
 
 ### API
 
