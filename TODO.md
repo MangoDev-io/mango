@@ -5,10 +5,7 @@
 
 ### API
 
-- Add proper error in response of API endpoints
--  Clear redundant error checking
-  - Ex. Deleting the wallet throws its own errors, we don't need an error check after it
-
+- Abstract away sending of different transactions into one function
 
 ### Reach goals
 
