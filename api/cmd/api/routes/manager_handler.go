@@ -243,7 +243,7 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 	}
 
 	// privateKey, address, err := h.getPrivKeyAndAddressFromMnemonic(claims["mnemonic"].(string))
-	privateKey, address := h.recoverAccount(claims["mnemonic"].(string))
+	privateKey, address, err := h.recoverAccount(claims["mnemonic"].(string))
 
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
@@ -347,7 +347,7 @@ func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	privateKey, managerAddr := h.recoverAccount(claims["mnemonic"].(string))
+	privateKey, managerAddr, err := h.recoverAccount(claims["mnemonic"].(string))
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -429,7 +429,7 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	privateKey, managerAddr := h.recoverAccount(claims["mnemonic"].(string))
+	privateKey, managerAddr, err := h.recoverAccount(claims["mnemonic"].(string))
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -501,7 +501,7 @@ func (h *ManagerHandler) FreezeAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	privateKey, freezeAddr := h.recoverAccount(claims["mnemonic"].(string))
+	privateKey, freezeAddr, err := h.recoverAccount(claims["mnemonic"].(string))
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -573,7 +573,7 @@ func (h *ManagerHandler) RevokeAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	privateKey, clawbackAddr := h.recoverAccount(claims["mnemonic"].(string))
+	privateKey, clawbackAddr, err := h.recoverAccount(claims["mnemonic"].(string))
 	if err != nil {
 		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -609,7 +609,7 @@ func (h *ManagerHandler) RevokeAsset(rw http.ResponseWriter, req *http.Request) 
 	rw.Write(respJSON)
 }
 
-func (h *ManagerHandler) waitForConfirmation(algodClient *algod.Client, txID string) {
+func (h *ManagerHandler) waitForConfirmation(algodClient *algod.Client, txID string) error {
 	for {
 		pt, err := algodClient.PendingTransactionInformation(txID)
 		if err != nil {
@@ -623,18 +623,20 @@ func (h *ManagerHandler) waitForConfirmation(algodClient *algod.Client, txID str
 		nodeStatus, err := algodClient.Status()
 		if err != nil {
 			h.log.WithError(err).Error("error getting algod status")
-			return
+			return err
 		}
 		algodClient.StatusAfterBlock(nodeStatus.LastRound + 1)
 	}
+
+	return nil
 }
 
 // Jason Weathersby's function utility function to recover account and return sk and address :)
-func (h *ManagerHandler) recoverAccount(userMnemonic string) (ed25519.PrivateKey, string) {
+func (h *ManagerHandler) recoverAccount(userMnemonic string) (ed25519.PrivateKey, string, error) {
 	sk, err := mnemonic.ToPrivateKey(userMnemonic)
 	if err != nil {
 		h.log.WithError(err).Error("error recovering account")
-		return nil, ""
+		return nil, "", err
 	}
 	pk := sk.Public()
 	var a types.Address
@@ -642,7 +644,7 @@ func (h *ManagerHandler) recoverAccount(userMnemonic string) (ed25519.PrivateKey
 	copy(a[:], cpk[:])
 	h.log.Debugf("Address: %s\n", a.String())
 	address := a.String()
-	return sk, address
+	return sk, address, nil
 }
 
 // Making and Sending Transactions:
@@ -674,7 +676,10 @@ func (h *ManagerHandler) makeAndSendAssetCreateTxn(assetDetails models.AssetCrea
 	}
 
 	// Wait for transaction to be confirmed
-	h.waitForConfirmation(h.algod, sendResponse.TxID)
+	err = h.waitForConfirmation(h.algod, sendResponse.TxID)
+	if err != nil {
+		return "", err
+	}
 
 	return sendResponse.TxID, nil
 }
@@ -706,7 +711,10 @@ func (h *ManagerHandler) makeAndSendAssetModifyTxn(assetDetails models.AssetModi
 	}
 	h.log.Infof("Transaction ID raw: %s", sendResponse.TxID)
 	// Wait for transaction to be confirmed
-	h.waitForConfirmation(h.algod, sendResponse.TxID)
+	err = h.waitForConfirmation(h.algod, sendResponse.TxID)
+	if err != nil {
+		return "", err
+	}
 
 	return sendResponse.TxID, nil
 }
@@ -738,7 +746,10 @@ func (h *ManagerHandler) makeAndSendAssetDestroyTxn(assetDetails models.AssetDes
 	}
 	h.log.Infof("Transaction ID raw: %s", sendResponse.TxID)
 	// Wait for transaction to be confirmed
-	h.waitForConfirmation(h.algod, sendResponse.TxID)
+	err = h.waitForConfirmation(h.algod, sendResponse.TxID)
+	if err != nil {
+		return "", err
+	}
 
 	return sendResponse.TxID, nil
 }
@@ -770,7 +781,10 @@ func (h *ManagerHandler) makeAndSendAssetFreezeTxn(assetDetails models.AssetFree
 	}
 	h.log.Infof("Transaction ID raw: %s", sendResponse.TxID)
 	// Wait for transaction to be confirmed
-	h.waitForConfirmation(h.algod, sendResponse.TxID)
+	err = h.waitForConfirmation(h.algod, sendResponse.TxID)
+	if err != nil {
+		return "", err
+	}
 
 	return sendResponse.TxID, nil
 }
@@ -802,7 +816,10 @@ func (h *ManagerHandler) makeAndSendAssetRevokeTxn(assetDetails models.AssetRevo
 	}
 	h.log.Infof("Transaction ID raw: %s", sendResponse.TxID)
 	// Wait for transaction to be confirmed
-	h.waitForConfirmation(h.algod, sendResponse.TxID)
+	err = h.waitForConfirmation(h.algod, sendResponse.TxID)
+	if err != nil {
+		return "", err
+	}
 
 	return sendResponse.TxID, nil
 }
