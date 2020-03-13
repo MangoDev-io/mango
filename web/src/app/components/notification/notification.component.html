@@ -24,11 +24,13 @@
                 <div class="column is-three-quarters">
                     <a
                         href="{{
-                            'https://goalseeker.purestake.io/algorand/testnet/asset/215451'
+                            'https://goalseeker.purestake.io/algorand/testnet/asset/' +
+                                assetId
                         }}"
-                        ><span class="tag is-dark is-medium is-pulled-left"
-                            >215451</span
-                        ></a
+                        target="_blank"
+                        ><span class="tag is-dark is-medium is-pulled-left">{{
+                            assetId
+                        }}</span></a
                     >
                 </div>
             </div>
@@ -39,12 +41,12 @@
                 <div class="column is-three-quarters">
                     <a
                         href="{{
-                            'https://goalseeker.purestake.io/algorand/testnet/transaction/RVGDF7UHGH2AGGVPEHO3OUUR4QCKEUDCEYDHSBSO7DD4CBBWKF4A'
+                            'https://goalseeker.purestake.io/algorand/testnet/transaction/' +
+                                txHash
                         }}"
+                        target="_blank"
                         ><span class="tag is-dark is-medium is-pulled-left">{{
-                            shortenTxHash(
-                                'RVGDF7UHGH2AGGVPEHO3OUUR4QCKEUDCEYDHSBSO7DD4CBBWKF4A'
-                            )
+                            shortenTxHash()
                         }}</span></a
                     >
                 </div>
@@ -81,14 +83,7 @@
                     <p class="is-size-5">Error:</p>
                 </div>
                 <div class="column is-three-quarters">
-                    <a
-                        href="{{
-                            'https://goalseeker.purestake.io/algorand/testnet/asset/215451'
-                        }}"
-                        ><span class="tag is-dark is-medium"
-                            >failed to update asset details in database
-                        </span></a
-                    >
+                    <span class="tag is-dark is-medium">{{ error }} </span>
                 </div>
             </div>
             <div class="columns">
@@ -98,12 +93,12 @@
                 <div class="column is-three-quarters">
                     <a
                         href="{{
-                            'https://goalseeker.purestake.io/algorand/testnet/transaction/RVGDF7UHGH2AGGVPEHO3OUUR4QCKEUDCEYDHSBSO7DD4CBBWKF4A'
+                            'https://goalseeker.purestake.io/algorand/testnet/transaction/' +
+                                txHash
                         }}"
+                        target="_blank"
                         ><span class="tag is-dark is-medium">{{
-                            shortenTxHash(
-                                'RVGDF7UHGH2AGGVPEHO3OUUR4QCKEUDCEYDHSBSO7DD4CBBWKF4A'
-                            )
+                            shortenTxHash()
                         }}</span></a
                     >
                 </div>

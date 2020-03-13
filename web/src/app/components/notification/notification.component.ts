@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, Input } from '@angular/core'
 
 @Component({
     selector: 'app-notification',
@@ -6,8 +6,20 @@ import { Component, OnInit } from '@angular/core'
     styleUrls: ['./notification.component.scss'],
 })
 export class NotificationComponent implements OnInit {
+    @Input()
     showModal = true
+
+    @Input()
     modalSuccess = true
+
+    @Input()
+    assetId: string
+
+    @Input()
+    txHash: string
+
+    @Input()
+    error: string
 
     constructor() {}
 
@@ -23,7 +35,12 @@ export class NotificationComponent implements OnInit {
         }
     }
 
-    shortenTxHash(hash: string): string {
-        if (hash) return hash.substring(0, 8) + ' . . . ' + hash.substring(44)
+    shortenTxHash(): string {
+        if (this.txHash)
+            return (
+                this.txHash.substring(0, 8) +
+                ' . . . ' +
+                this.txHash.substring(44)
+            )
     }
 }

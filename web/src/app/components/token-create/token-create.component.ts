@@ -12,6 +12,13 @@ export class TokenCreateComponent implements OnInit {
 
     createButtonLoading = false
 
+    showNotificationModal = false
+    notificationModalSuccess = true
+
+    responseAssetId = ''
+    responseTxHash = ''
+    responseError = ''
+
     constructor(private stateService: StateService) {}
 
     ngOnInit(): void {}
@@ -19,10 +26,23 @@ export class TokenCreateComponent implements OnInit {
     createAsset() {
         console.log(JSON.stringify(this.assetCreate))
         this.createButtonLoading = true
-        this.stateService.createAsset(this.assetCreate).subscribe(x => {
-            console.log(x)
-            this.createButtonLoading = false
-        })
+        this.stateService.createAsset(this.assetCreate).subscribe(
+            x => {
+                console.log(x)
+                this.createButtonLoading = false
+                this.showNotificationModal = true
+                this.responseAssetId = x.assetId.toString()
+                this.responseTxHash = x.txHash
+                this.stateService.setReloadListings()
+            },
+            err => {
+                console.error(err)
+                this.createButtonLoading = false
+                this.showNotificationModal = true
+                this.notificationModalSuccess = false
+                this.responseError = err.error.message
+            }
+        )
     }
 
     getButtonLoadingClass() {

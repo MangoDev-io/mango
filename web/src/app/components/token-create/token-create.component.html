@@ -1,5 +1,11 @@
 <div class="container">
-    <app-notification></app-notification>
+    <app-notification
+        [showModal]="showNotificationModal"
+        [modalSuccess]="notificationModalSuccess"
+        [assetId]="responseAssetId"
+        [txHash]="responseTxHash"
+        [error]="responseError"
+    ></app-notification>
     <article class="message tokenCreate__message">
         <div class="message-header">
             <p>+ Create New Asset</p>

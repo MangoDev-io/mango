@@ -1,15 +1,24 @@
 import { Component, OnInit } from '@angular/core'
 import { StateService } from '../../state.service'
 import { AssetListing } from 'src/app/asset-listing'
+import { Subscription } from 'rxjs'
 @Component({
     selector: 'app-token-lister',
     templateUrl: './token-lister.component.html',
     styleUrls: ['./token-lister.component.scss'],
 })
 export class TokenListerComponent implements OnInit {
+    reloadListingsSubscription: Subscription
+
     ownedAssets: AssetListing[]
 
-    constructor(private stateService: StateService) {}
+    constructor(private stateService: StateService) {
+        this.reloadListingsSubscription = this.stateService
+            .getReloadListings()
+            .subscribe(() => {
+                this.getOwnedAssets()
+            })
+    }
 
     ngOnInit(): void {
         this.getOwnedAssets()

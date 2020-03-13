@@ -6,18 +6,20 @@ import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { AssetListing } from './asset-listing'
 import { environment } from '../environments/environment'
 import algosdk from 'algosdk'
+import { Response } from './response'
 
 @Injectable({
     providedIn: 'root',
 })
 export class StateService {
-    //private baseURL = 'http://localhost:5000'
-    private baseURL = 'https://api.mangodev.io'
+    private baseURL = 'http://localhost:5000'
+    //private baseURL = 'https://api.mangodev.io'
 
     private authToken: string
 
     private selectedTokenSubject = new BehaviorSubject<Token>(null)
     private showCreateSubject = new BehaviorSubject<boolean>(false)
+    private reloadListingsSubject = new BehaviorSubject<void>(null)
 
     private algorandClient = new algosdk.Algod(
         environment.algorandToken,
@@ -49,6 +51,14 @@ export class StateService {
         this.authToken = a
     }
 
+    setReloadListings() {
+        this.reloadListingsSubject.next()
+    }
+
+    getReloadListings() {
+        return this.reloadListingsSubject.asObservable()
+    }
+
     encodeMnemonic(m: string) {
         return this.httpClient.post(this.baseURL + '/encodeMnemonic', {
             mnemonic: m,
@@ -70,7 +80,7 @@ export class StateService {
         )
     }
 
-    createAsset(a: Token) {
+    createAsset(a: Token): Observable<Response> {
         let httpHeaders = new HttpHeaders({
             'Content-Type': 'application/json',
             Authorization: 'Bearer ' + this.authToken,
@@ -79,10 +89,14 @@ export class StateService {
             headers: httpHeaders,
         }
 
-        return this.httpClient.post(this.baseURL + '/createAsset', a, options)
+        return this.httpClient.post<Response>(
+            this.baseURL + '/createAsset',
+            a,
+            options
+        )
     }
 
-    freezeAsset(a: AssetRequest) {
+    freezeAsset(a: AssetRequest): Observable<Response> {
         let httpHeaders = new HttpHeaders({
             'Content-Type': 'application/json',
             Authorization: 'Bearer ' + this.authToken,
@@ -91,10 +105,14 @@ export class StateService {
             headers: httpHeaders,
         }
 
-        return this.httpClient.post(this.baseURL + '/freezeAsset', a, options)
+        return this.httpClient.post<Response>(
+            this.baseURL + '/freezeAsset',
+            a,
+            options
+        )
     }
 
-    revokeAsset(a: AssetRequest) {
+    revokeAsset(a: AssetRequest): Observable<Response> {
         let httpHeaders = new HttpHeaders({
             'Content-Type': 'application/json',
             Authorization: 'Bearer ' + this.authToken,
@@ -103,10 +121,14 @@ export class StateService {
             headers: httpHeaders,
         }
 
-        return this.httpClient.post(this.baseURL + '/revokeAsset', a, options)
+        return this.httpClient.post<Response>(
+            this.baseURL + '/revokeAsset',
+            a,
+            options
+        )
     }
 
-    modifyAsset(a: AssetRequest) {
+    modifyAsset(a: AssetRequest): Observable<Response> {
         let httpHeaders = new HttpHeaders({
             'Content-Type': 'application/json',
             Authorization: 'Bearer ' + this.authToken,
@@ -115,10 +137,14 @@ export class StateService {
             headers: httpHeaders,
         }
 
-        return this.httpClient.post(this.baseURL + '/modifyAsset', a, options)
+        return this.httpClient.post<Response>(
+            this.baseURL + '/modifyAsset',
+            a,
+            options
+        )
     }
 
-    destroyAsset(a: AssetRequest) {
+    destroyAsset(a: AssetRequest): Observable<Response> {
         let httpHeaders = new HttpHeaders({
             'Content-Type': 'application/json',
             Authorization: 'Bearer ' + this.authToken,
@@ -127,7 +153,11 @@ export class StateService {
             headers: httpHeaders,
         }
 
-        return this.httpClient.post(this.baseURL + '/destroyAsset', a, options)
+        return this.httpClient.post<Response>(
+            this.baseURL + '/destroyAsset',
+            a,
+            options
+        )
     }
 
     getAssetDetails(assetId: string) {

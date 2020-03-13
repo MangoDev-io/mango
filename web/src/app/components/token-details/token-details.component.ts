@@ -14,6 +14,13 @@ export class TokenDetailsComponent implements OnInit {
 
     createButtonLoading = false
 
+    showNotificationModal = false
+    notificationModalSuccess = true
+
+    responseAssetId = ''
+    responseTxHash = ''
+    responseError = ''
+
     selectedButton = 1
     assetManagementTabs = {
         '1': 'Freeze',
@@ -55,12 +62,23 @@ export class TokenDetailsComponent implements OnInit {
                 console.log(
                     'Freeze request: ' + JSON.stringify(this.assetRequest)
                 )
-                this.stateService
-                    .freezeAsset(this.assetRequest)
-                    .subscribe(x => {
+                this.stateService.freezeAsset(this.assetRequest).subscribe(
+                    x => {
                         console.log(x)
                         this.createButtonLoading = false
-                    })
+                        this.showNotificationModal = true
+                        this.responseAssetId = x.assetId.toString()
+                        this.responseTxHash = x.txHash
+                        this.stateService.setReloadListings()
+                    },
+                    err => {
+                        console.error(err)
+                        this.createButtonLoading = false
+                        this.showNotificationModal = true
+                        this.notificationModalSuccess = false
+                        this.responseError = err.error.message
+                    }
+                )
                 break
             }
 
@@ -68,12 +86,23 @@ export class TokenDetailsComponent implements OnInit {
                 console.log(
                     'Revoke request: ' + JSON.stringify(this.assetRequest)
                 )
-                this.stateService
-                    .revokeAsset(this.assetRequest)
-                    .subscribe(x => {
+                this.stateService.revokeAsset(this.assetRequest).subscribe(
+                    x => {
                         console.log(x)
                         this.createButtonLoading = false
-                    })
+                        this.showNotificationModal = true
+                        this.responseAssetId = x.assetId.toString()
+                        this.responseTxHash = x.txHash
+                        this.stateService.setReloadListings()
+                    },
+                    err => {
+                        console.error(err)
+                        this.createButtonLoading = false
+                        this.showNotificationModal = true
+                        this.notificationModalSuccess = false
+                        this.responseError = err.error.message
+                    }
+                )
                 break
             }
 
@@ -81,12 +110,23 @@ export class TokenDetailsComponent implements OnInit {
                 console.log(
                     'Modify request: ' + JSON.stringify(this.assetRequest)
                 )
-                this.stateService
-                    .modifyAsset(this.assetRequest)
-                    .subscribe(x => {
+                this.stateService.modifyAsset(this.assetRequest).subscribe(
+                    x => {
                         console.log(x)
                         this.createButtonLoading = false
-                    })
+                        this.showNotificationModal = true
+                        this.responseAssetId = x.assetId.toString()
+                        this.responseTxHash = x.txHash
+                        this.stateService.setReloadListings()
+                    },
+                    err => {
+                        console.error(err)
+                        this.createButtonLoading = false
+                        this.showNotificationModal = true
+                        this.notificationModalSuccess = false
+                        this.responseError = err.error.message
+                    }
+                )
                 break
             }
 
@@ -94,12 +134,24 @@ export class TokenDetailsComponent implements OnInit {
                 console.log(
                     'Destroy request: ' + JSON.stringify(this.assetRequest)
                 )
-                this.stateService
-                    .destroyAsset(this.assetRequest)
-                    .subscribe(x => {
+                this.stateService.destroyAsset(this.assetRequest).subscribe(
+                    x => {
                         console.log(x)
+                        this.stateService.setReloadListings()
                         this.createButtonLoading = false
-                    })
+                        this.showNotificationModal = true
+                        this.responseAssetId = x.assetId.toString()
+                        this.responseTxHash = x.txHash
+                        this.stateService.setReloadListings()
+                    },
+                    err => {
+                        console.error(err)
+                        this.createButtonLoading = false
+                        this.showNotificationModal = true
+                        this.notificationModalSuccess = false
+                        this.responseError = err.error.message
+                    }
+                )
                 break
             }
         }

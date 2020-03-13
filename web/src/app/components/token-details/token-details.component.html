@@ -1,4 +1,11 @@
 <div class="container">
+    <app-notification
+        [showModal]="showNotificationModal"
+        [modalSuccess]="notificationModalSuccess"
+        [assetId]="responseAssetId"
+        [txHash]="responseTxHash"
+        [error]="responseError"
+    ></app-notification>
     <article class="message tokenDetails__message">
         <div class="message-header">
             <p>{{ currToken.assetName }} ({{ currToken.unitName }})</p>
@@ -11,9 +18,16 @@
                             <p class="is-pulled-right is-size-5">Asset ID:</p>
                         </div>
                         <div class="column is-half">
-                            <span
-                                class="tag is-dark is-medium is-pulled-left"
-                                >{{ currToken.assetId }}</span
+                            <a
+                                href="{{
+                                    'https://goalseeker.purestake.io/algorand/testnet/asset/' +
+                                        currToken.assetId
+                                }}"
+                                target="_blank"
+                                ><span
+                                    class="tag is-dark is-medium is-pulled-left"
+                                    >{{ currToken.assetId }}</span
+                                ></a
                             >
                         </div>
                     </div>
@@ -44,7 +58,7 @@
 
                     <div *ngIf="currToken.url">
                         <p class="is-size-5">URL:</p>
-                        <a href="{{ currToken.url }}"
+                        <a href="{{ currToken.url }}" target="_blank"
                             ><span class="tag is-dark is-medium">{{
                                 currToken.url
                             }}</span></a
@@ -130,9 +144,10 @@
                         <div class="column">
                             <a
                                 href="{{
-                                    'https://testnet.algoexplorer.io/address/' +
+                                    'https://goalseeker.purestake.io/algorand/testnet/account/' +
                                         currToken.creatorAddr
                                 }}"
+                                target="_blank"
                                 ><span
                                     class="tag is-dark is-medium is-pulled-left"
                                     >{{
@@ -151,9 +166,10 @@
                         <div class="column">
                             <a
                                 href="{{
-                                    'https://testnet.algoexplorer.io/address/' +
+                                    'https://goalseeker.purestake.io/algorand/testnet/account/' +
                                         currToken.managerAddr
                                 }}"
+                                target="_blank"
                                 ><span
                                     class="tag is-dark is-medium is-pulled-left"
                                     >{{
@@ -172,9 +188,10 @@
                         <div class="column">
                             <a
                                 href="{{
-                                    'https://testnet.algoexplorer.io/address/' +
+                                    'https://goalseeker.purestake.io/algorand/testnet/account/' +
                                         currToken.reserveAddr
                                 }}"
+                                target="_blank"
                                 ><span
                                     class="tag is-dark is-medium is-pulled-left"
                                     >{{
@@ -193,9 +210,10 @@
                         <div class="column">
                             <a
                                 href="{{
-                                    'https://testnet.algoexplorer.io/address/' +
+                                    'https://goalseeker.purestake.io/algorand/testnet/account/' +
                                         currToken.freezeAddr
                                 }}"
+                                target="_blank"
                                 ><span
                                     class="tag is-dark is-medium is-pulled-left"
                                     >{{
@@ -214,9 +232,10 @@
                         <div class="column">
                             <a
                                 href="{{
-                                    'https://testnet.algoexplorer.io/address/' +
+                                    'https://goalseeker.purestake.io/algorand/testnet/account/' +
                                         currToken.clawbackAddr
                                 }}"
+                                target="_blank"
                                 ><span
                                     class="tag is-dark is-medium is-pulled-left"
                                     >{{
@@ -438,6 +457,13 @@
                                     [(ngModel)]="assetRequest.newClawbackAddr"
                                     placeholder="e.g. MTTIYHO4QQAEZ6VPLW44YV7AT7TY4SDBYGLFARD7POC2JMSIIK3RVWZVZU"
                                 />
+                                <app-notification
+                                    [showModal]="showNotificationModal"
+                                    [modalSuccess]="notificationModalSuccess"
+                                    [assetId]="responseAssetId"
+                                    [txHash]="responseTxHash"
+                                    [error]="responseError"
+                                ></app-notification>
                             </div>
                         </div>
                     </div>

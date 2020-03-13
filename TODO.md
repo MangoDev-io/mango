@@ -1,9 +1,5 @@
 ### WEB
 
-- Add loading icon when waiting for api calls
-  - If call fails, display error message to user
-- "refresh" asset listings on create and destroy
-- notifications on sucessful calls // implement functionality
 - confirmation msg for destroy
 
 ### API
