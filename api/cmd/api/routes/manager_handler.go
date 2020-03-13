@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 
@@ -96,7 +97,9 @@ func (h *ManagerHandler) EncodeMnemonic(rw http.ResponseWriter, req *http.Reques
 		return
 	}
 
-	_, tokenString, err := h.jwt.Encode(jwt.MapClaims{"mnemonic": request.Mnemonic})
+	ttl := 15 * 60 * time.Second
+
+	_, tokenString, err := h.jwt.Encode(jwt.MapClaims{"mnemonic": request.Mnemonic, "exp": time.Now().UTC().Add(ttl).Unix()})
 	if err != nil {
 		h.log.WithError(err).Error("failed to encode jwt claims")
 		rw.WriteHeader(http.StatusInternalServerError)
