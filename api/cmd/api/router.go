@@ -50,12 +50,12 @@ func NewRouterService(logger *logrus.Logger, db *data.DatabaseService, algod *al
 		router.Post("/destroyAsset", managerHandler.DestroyAsset)
 		router.Post("/freezeAsset", managerHandler.FreezeAsset)
 		router.Post("/revokeAsset", managerHandler.RevokeAsset)
+		router.Get("/assets", managerHandler.GetAssets)
 	})
 
 	// Public Routes
 	router.Group(func(router chi.Router) {
 		router.Post("/encodeMnemonic", managerHandler.EncodeMnemonic)
-		router.Get("/assets", managerHandler.GetAssets)
 	})
 
 	service := &Router{router, logger, db, algod, jwt}

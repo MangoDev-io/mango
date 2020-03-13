@@ -5,9 +5,10 @@
     </div>
 
     <!-- Token List -->
-    <div *ngFor="let token of tokens; index as j" class="token__container">
+    <div *ngFor="let asset of ownedAssets; index as j" class="token__container">
         <app-token-entry
-            [token]="token"
+            [assetId]="asset.assetId"
+            [permissions]="asset.permissions"
             [entryId]="j"
             id="tokenEntry__{{ j }}"
         ></app-token-entry>

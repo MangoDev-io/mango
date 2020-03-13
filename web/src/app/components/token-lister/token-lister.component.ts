@@ -1,18 +1,18 @@
 import { Component, OnInit } from '@angular/core'
 import { StateService } from '../../state.service'
-import { Token } from '../../token'
+import { AssetListing } from 'src/app/asset-listing'
 @Component({
     selector: 'app-token-lister',
     templateUrl: './token-lister.component.html',
     styleUrls: ['./token-lister.component.scss'],
 })
 export class TokenListerComponent implements OnInit {
-    tokens: Token[]
+    ownedAssets: AssetListing[]
 
     constructor(private stateService: StateService) {}
 
     ngOnInit(): void {
-        this.fetchTokens()
+        this.getOwnedAssets()
     }
 
     createNewAsset() {
@@ -27,7 +27,9 @@ export class TokenListerComponent implements OnInit {
             .classList.add('active')
     }
 
-    fetchTokens() {
-        this.tokens = this.stateService.tokenList
+    getOwnedAssets() {
+        this.stateService.getAssetListings().subscribe(x => {
+            this.ownedAssets = x
+        })
     }
 }

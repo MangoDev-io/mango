@@ -133,9 +133,9 @@ func (h *ManagerHandler) EncodeMnemonic(rw http.ResponseWriter, req *http.Reques
 // GetAssets accepts a JSON body of the form { "address" : "example"  }
 // and returns a list of all assets owned by the address (created on Mango)
 func (h *ManagerHandler) GetAssets(rw http.ResponseWriter, req *http.Request) {
-	body, err := ioutil.ReadAll(req.Body)
+	_, claims, err := jwtauth.FromContext(req.Context())
 	if err != nil {
-		h.log.WithError(err).Error("failed to read body")
+		h.log.WithError(err).Error("failed to get jwt claims from context")
 		rw.WriteHeader(http.StatusBadRequest)
 
 		respJSON := makeResponseJSON("error", "failed to read request body", 0, "")
@@ -144,14 +144,11 @@ func (h *ManagerHandler) GetAssets(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	type getAssetReq struct {
-		Address string `json:"address"`
-	}
+	// privateKey, address, err := h.getPrivKeyAndAddressFromMnemonic(claims["mnemonic"].(string))
+	_, address := h.recoverAccount(claims["mnemonic"].(string))
 
-	var request getAssetReq
-	err = json.Unmarshal(body, &request)
 	if err != nil {
-		h.log.WithError(err).Error("failed to unmarshal body")
+		h.log.WithError(err).Error("failed to get private key from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
 
 		respJSON := makeResponseJSON("error", "failed to unmarshal request body", 0, "")
@@ -159,7 +156,7 @@ func (h *ManagerHandler) GetAssets(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	ownedAssets, err := h.db.SelectAllAssetsForAddress(request.Address)
+	ownedAssets, err := h.db.SelectAllAssetsForAddress(address)
 	if err != nil {
 		h.log.WithError(err).Error("failed to select rows")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -172,19 +169,19 @@ func (h *ManagerHandler) GetAssets(rw http.ResponseWriter, req *http.Request) {
 	var listing []models.AssetListing
 	for _, asset := range ownedAssets {
 		var permissions []string
-		if request.Address == asset.CreatorAddress {
+		if address == asset.CreatorAddress {
 			permissions = append(permissions, "creator")
 		}
-		if request.Address == asset.ManagerAddress {
+		if address == asset.ManagerAddress {
 			permissions = append(permissions, "manager")
 		}
-		if request.Address == asset.ReserveAddress {
+		if address == asset.ReserveAddress {
 			permissions = append(permissions, "reserve")
 		}
-		if request.Address == asset.FreezeAddress {
+		if address == asset.FreezeAddress {
 			permissions = append(permissions, "freeze")
 		}
-		if request.Address == asset.ClawbackAddress {
+		if address == asset.ClawbackAddress {
 			permissions = append(permissions, "clawback")
 		}
 		listing = append(listing, models.AssetListing{
@@ -380,7 +377,7 @@ func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	resp := response{AssetID: 0, TXHash: txID}
+	resp := response{AssetID: assetDetails.AssetID, TXHash: txID}
 	respJSON, err := json.Marshal(resp)
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -451,6 +448,13 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 		return
 	}
 	h.log.Debug("Transaction ID: ", txID)
+
+	err = h.db.DeleteAssetByAssetID(assetDetails.AssetID)
+	if err != nil {
+		h.log.WithError(err).Error("failed to delete asset")
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	resp := response{AssetID: 0, TXHash: txID}
 	respJSON, err := json.Marshal(resp)

@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { StateService } from 'src/app/state.service'
 import { Token } from '../../token'
 import { AssetRequest } from '../../assetRequest'
+import { StateService } from 'src/app/state.service'
 
 @Component({
     selector: 'app-token-details',
@@ -14,10 +14,10 @@ export class TokenDetailsComponent implements OnInit {
 
     selectedButton = 1
     assetManagementTabs = {
-        "1": "Freeze",
-        "2": "Revoke",
-        "3": "Modify",
-        "4": "Destroy"
+        '1': 'Freeze',
+        '2': 'Revoke',
+        '3': 'Modify',
+        '4': 'Destroy',
     }
 
     constructor(private stateService: StateService) {}
@@ -30,43 +30,61 @@ export class TokenDetailsComponent implements OnInit {
 
     updateSelectedButton(b: number) {
         this.selectedButton = b
-        console.log("Selected tab: " + this.assetManagementTabs[this.selectedButton])
+        console.log(
+            'Selected tab: ' + this.assetManagementTabs[this.selectedButton]
+        )
     }
 
-    assetRequest = new AssetRequest(); 
+    assetRequest = new AssetRequest()
     handleAssetRequest() {
         this.assetRequest.assetId = parseInt(this.currToken.assetId)
         switch (this.selectedButton) {
             case 1: {
-                console.log("Freeze request: " + JSON.stringify(this.assetRequest))
-                this.stateService.freezeAsset(this.assetRequest).subscribe(x => {
-                    console.log(x)
-                })
-                break;
+                console.log(
+                    'Freeze request: ' + JSON.stringify(this.assetRequest)
+                )
+                this.stateService
+                    .freezeAsset(this.assetRequest)
+                    .subscribe(x => {
+                        console.log(x)
+                    })
+                break
             }
-            
+
             case 2: {
-                console.log("Revoke request: " + JSON.stringify(this.assetRequest))
-                this.stateService.revokeAsset(this.assetRequest).subscribe(x => {
-                    console.log(x)
-                })
-                break;
+                console.log(
+                    'Revoke request: ' + JSON.stringify(this.assetRequest)
+                )
+                this.stateService
+                    .revokeAsset(this.assetRequest)
+                    .subscribe(x => {
+                        console.log(x)
+                    })
+                break
             }
 
             case 3: {
-                console.log("Modify request: " + JSON.stringify(this.assetRequest))
-                this.stateService.modifyAsset(this.assetRequest).subscribe(x => {
-                    console.log(x)
-                })
-                break;
+                console.log(
+                    'Modify request: ' + JSON.stringify(this.assetRequest)
+                )
+                this.stateService
+                    .modifyAsset(this.assetRequest)
+                    .subscribe(x => {
+                        console.log(x)
+                    })
+                break
             }
 
             case 4: {
-                console.log("Destroy request: " + JSON.stringify(this.assetRequest))
-                this.stateService.destroyAsset(this.assetRequest).subscribe(x => {
-                    console.log(x)
-                })
-                break;
+                console.log(
+                    'Destroy request: ' + JSON.stringify(this.assetRequest)
+                )
+                this.stateService
+                    .destroyAsset(this.assetRequest)
+                    .subscribe(x => {
+                        console.log(x)
+                    })
+                break
             }
         }
     }
