@@ -83,7 +83,8 @@ export class TokenEntryComponent implements OnInit {
             metadataHash: assetInfo.metadatahash,
             managerAddr: assetInfo.managerkey,
             reserveAddr: assetInfo.reserveaddr,
-            freezeAddr: assetInfo.clawbackaddr,
+            freezeAddr: assetInfo.freezeaddr,
+            clawbackAddr: assetInfo.clawbackaddr,
             permissions: this.permissions,
         })
     }

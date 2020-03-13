@@ -3,9 +3,9 @@ import { Token } from './token'
 import { AssetRequest } from './assetRequest'
 import { BehaviorSubject, Observable, from } from 'rxjs'
 import { HttpClient, HttpHeaders } from '@angular/common/http'
+import { AssetListing } from './asset-listing'
 import { environment } from '../environments/environment'
 import algosdk from 'algosdk'
-import { AssetListing } from './asset-listing'
 
 @Injectable({
     providedIn: 'root',

@@ -22,7 +22,10 @@ export class TokenDetailsComponent implements OnInit {
 
     constructor(private stateService: StateService) {}
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        console.log('Token')
+        console.log(this.currToken)
+    }
 
     shortenAddress(addr: string): string {
         if (addr) return addr.substring(0, 8) + ' . . . ' + addr.substring(50)
