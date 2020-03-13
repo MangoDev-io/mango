@@ -14,8 +14,6 @@
 
 ### API
 
-- Abstract away sending of different transactions into one function
-
 ### Reach goals
 
 1. Transferring assets

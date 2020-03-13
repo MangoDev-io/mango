@@ -4,6 +4,7 @@ import (
 	"crypto/ed25519"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -252,7 +253,7 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 
 	assetDetails.CreatorAddr = address
 
-	txID, err := h.makeAndSendAssetCreateTxn(assetDetails, privateKey)
+	txID, err := h.makeAndSendTxn(assetDetails, "create", privateKey)
 	if err != nil {
 		h.log.WithError(err).Error("failed to make and send asset create txn")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -294,15 +295,7 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	resp := response{AssetID: assetID, TXHash: txID}
-	respJSON, err := json.Marshal(resp)
-	if err != nil {
-		rw.WriteHeader(http.StatusInternalServerError)
-		respJSON := makeResponseJSON("error", "failed to marshal response body", assetID, txID)
-		rw.Write(respJSON)
-		return
-	}
-
+	respJSON := makeResponseJSON("success", "", assetID, txID)
 	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(respJSON)
 }
@@ -355,7 +348,7 @@ func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) 
 
 	assetDetails.CurrManagerAddr = managerAddr
 
-	txID, err := h.makeAndSendAssetModifyTxn(assetDetails, privateKey)
+	txID, err := h.makeAndSendTxn(assetDetails, "modify", privateKey)
 	if err != nil {
 		h.log.WithError(err).Error("failed to make and send asset modify txn")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -376,15 +369,7 @@ func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	resp := response{AssetID: assetDetails.AssetID, TXHash: txID}
-	respJSON, err := json.Marshal(resp)
-	if err != nil {
-		rw.WriteHeader(http.StatusInternalServerError)
-		respJSON := makeResponseJSON("error", "failed to marshal request body", 0, "")
-		rw.Write(respJSON)
-		return
-	}
-
+	respJSON := makeResponseJSON("success", "", assetDetails.AssetID, txID)
 	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(respJSON)
 }
@@ -437,7 +422,7 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 
 	assetDetails.ManagerAddr = managerAddr
 
-	txID, err := h.makeAndSendAssetDestroyTxn(assetDetails, privateKey)
+	txID, err := h.makeAndSendTxn(assetDetails, "destory", privateKey)
 	if err != nil {
 		h.log.WithError(err).Error("failed to make and send asset destroy txn")
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -455,15 +440,7 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	resp := response{AssetID: 0, TXHash: txID}
-	respJSON, err := json.Marshal(resp)
-	if err != nil {
-		rw.WriteHeader(http.StatusInternalServerError)
-		respJSON := makeResponseJSON("error", "failed to marshal response body", 0, "")
-		rw.Write(respJSON)
-		return
-	}
-
+	respJSON := makeResponseJSON("success", "", assetDetails.AssetID, txID)
 	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(respJSON)
 }
@@ -516,7 +493,7 @@ func (h *ManagerHandler) FreezeAsset(rw http.ResponseWriter, req *http.Request) 
 
 	assetDetails.FreezeAddr = freezeAddr
 
-	txID, err := h.makeAndSendAssetFreezeTxn(assetDetails, privateKey)
+	txID, err := h.makeAndSendTxn(assetDetails, "freeze", privateKey)
 	if err != nil {
 		h.log.WithError(err).Error("failed to make and send asset freeze txn")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -527,15 +504,7 @@ func (h *ManagerHandler) FreezeAsset(rw http.ResponseWriter, req *http.Request) 
 	}
 	h.log.Debug("Transaction ID: ", txID)
 
-	resp := response{AssetID: assetDetails.AssetID, TXHash: txID}
-	respJSON, err := json.Marshal(resp)
-	if err != nil {
-		rw.WriteHeader(http.StatusInternalServerError)
-		respJSON := makeResponseJSON("error", "failed to marshal response body", 0, "")
-		rw.Write(respJSON)
-		return
-	}
-
+	respJSON := makeResponseJSON("success", "", assetDetails.AssetID, txID)
 	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(respJSON)
 }
@@ -588,7 +557,7 @@ func (h *ManagerHandler) RevokeAsset(rw http.ResponseWriter, req *http.Request) 
 
 	assetDetails.ClawbackAddr = clawbackAddr
 
-	txID, err := h.makeAndSendAssetRevokeTxn(assetDetails, privateKey)
+	txID, err := h.makeAndSendTxn(assetDetails, "revoke", privateKey)
 	if err != nil {
 		h.log.WithError(err).Error("failed to make and send asset revoke txn")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -599,15 +568,7 @@ func (h *ManagerHandler) RevokeAsset(rw http.ResponseWriter, req *http.Request) 
 	}
 	h.log.Debug("Transaction ID: ", txID)
 
-	resp := response{AssetID: assetDetails.AssetID, TXHash: txID}
-	respJSON, err := json.Marshal(resp)
-	if err != nil {
-		rw.WriteHeader(http.StatusInternalServerError)
-		respJSON := makeResponseJSON("error", "failed to marshal response body", 0, "")
-		rw.Write(respJSON)
-		return
-	}
-
+	respJSON := makeResponseJSON("success", "", assetDetails.AssetID, txID)
 	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(respJSON)
 }
@@ -651,19 +612,66 @@ func (h *ManagerHandler) recoverAccount(userMnemonic string) (ed25519.PrivateKey
 }
 
 // Making and Sending Transactions:
-func (h *ManagerHandler) makeAndSendAssetCreateTxn(assetDetails models.AssetCreate, privateKey ed25519.PrivateKey) (string, error) {
-
+func (h *ManagerHandler) makeAndSendTxn(request interface{}, txnType string, privateKey ed25519.PrivateKey) (string, error) {
 	txnParams, err := h.algod.SuggestedParams()
 	note := []byte(nil)
 	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
 
-	txn, err := transaction.MakeAssetCreateTxn(assetDetails.CreatorAddr, txnParams.Fee, txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.TotalIssuance, assetDetails.Decimals, assetDetails.DefaultFrozen, assetDetails.ManagerAddr, assetDetails.ReserveAddr, assetDetails.FreezeAddr, assetDetails.ClawbackAddr, assetDetails.UnitName, assetDetails.AssetName, assetDetails.URL, assetDetails.MetaDataHash)
+	var txn types.Transaction
 
-	if err != nil {
-		h.log.WithError(err).Error("Failed to make asset")
-		return "", err
+	switch assetDetails := request.(type) {
+	case models.AssetCreate:
+		txn, err = transaction.MakeAssetCreateTxn(assetDetails.CreatorAddr, txnParams.Fee, txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.TotalIssuance, assetDetails.Decimals, assetDetails.DefaultFrozen, assetDetails.ManagerAddr, assetDetails.ReserveAddr, assetDetails.FreezeAddr, assetDetails.ClawbackAddr, assetDetails.UnitName, assetDetails.AssetName, assetDetails.URL, assetDetails.MetaDataHash)
+		if err != nil {
+			h.log.WithError(err).Error("Failed to make asset")
+			return "", err
+		}
+		h.log.Debugf("Asset created AssetName: %s", txn.AssetConfigTxnFields.AssetParams.AssetName)
+		break
+
+	case models.AssetModify:
+		txn, err = transaction.MakeAssetConfigTxn(assetDetails.CurrManagerAddr, txnParams.Fee,
+			txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID, assetDetails.NewManagerAddr, assetDetails.NewReserveAddr, assetDetails.NewFreezeAddr, assetDetails.NewClawbackAddr, false)
+		if err != nil {
+			h.log.WithError(err).Error("Failed to modify asset")
+			return "", err
+		}
+		h.log.Debugf("Asset modified AssetID: %s", assetDetails.AssetID)
+		break
+
+	case models.AssetDestroy:
+		txn, err = transaction.MakeAssetDestroyTxn(assetDetails.ManagerAddr, txnParams.Fee,
+			txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID)
+		if err != nil {
+			h.log.WithError(err).Error("Failed to destroy asset")
+			return "", err
+		}
+		h.log.Debugf("Asset destroyed AssetID: %s", assetDetails.AssetID)
+		break
+
+	case models.AssetFreeze:
+		txn, err = transaction.MakeAssetFreezeTxn(assetDetails.FreezeAddr, txnParams.Fee,
+			txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID, assetDetails.TargetAddr, assetDetails.FreezeSetting)
+		if err != nil {
+			h.log.WithError(err).Error("Failed to freeze asset")
+			return "", err
+		}
+		h.log.Debugf("Asset freezed AssetID: %s", assetDetails.AssetID)
+		break
+
+	case models.AssetRevoke:
+		txn, err = transaction.MakeAssetRevocationTxn(assetDetails.ClawbackAddr, assetDetails.TargetAddr, assetDetails.RecipientAddr, assetDetails.Amount, txnParams.Fee,
+			txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID)
+		if err != nil {
+			h.log.WithError(err).Error("Failed to revoke asset")
+			return "", err
+		}
+		h.log.Debugf("Asset revoked AssetID: %s", assetDetails.AssetID)
+		break
+
+	default:
+		return "", errors.New("invalid txn type")
 	}
-	h.log.Debugf("Asset created AssetName: %s", txn.AssetConfigTxnFields.AssetParams.AssetName)
 
 	txid, stx, err := crypto.SignTransaction(privateKey, txn)
 	if err != nil {
@@ -678,146 +686,6 @@ func (h *ManagerHandler) makeAndSendAssetCreateTxn(assetDetails models.AssetCrea
 		return "", err
 	}
 
-	// Wait for transaction to be confirmed
-	err = h.waitForConfirmation(h.algod, sendResponse.TxID)
-	if err != nil {
-		return "", err
-	}
-
-	return sendResponse.TxID, nil
-}
-
-func (h *ManagerHandler) makeAndSendAssetModifyTxn(assetDetails models.AssetModify, privateKey ed25519.PrivateKey) (string, error) {
-	txnParams, err := h.algod.SuggestedParams()
-	note := []byte(nil)
-	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
-
-	txn, err := transaction.MakeAssetConfigTxn(assetDetails.CurrManagerAddr, txnParams.Fee,
-		txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID, assetDetails.NewManagerAddr, assetDetails.NewReserveAddr, assetDetails.NewFreezeAddr, assetDetails.NewClawbackAddr, false)
-
-	if err != nil {
-		h.log.WithError(err).Error("failed to send txn")
-		return "", err
-	}
-
-	txid, stx, err := crypto.SignTransaction(privateKey, txn)
-	if err != nil {
-		h.log.WithError(err).Error("Failed to sign transaction")
-		return "", err
-	}
-	h.log.Debugf("Transaction ID: %s", txid)
-	// Broadcast the transaction to the network
-	sendResponse, err := h.algod.SendRawTransaction(stx, &algod.Header{Key: "Content-Type", Value: "application/x-binary"})
-	if err != nil {
-		h.log.WithError(err).Error("failed to send transaction")
-		return "", err
-	}
-	h.log.Infof("Transaction ID raw: %s", sendResponse.TxID)
-	// Wait for transaction to be confirmed
-	err = h.waitForConfirmation(h.algod, sendResponse.TxID)
-	if err != nil {
-		return "", err
-	}
-
-	return sendResponse.TxID, nil
-}
-
-func (h *ManagerHandler) makeAndSendAssetDestroyTxn(assetDetails models.AssetDestroy, privateKey ed25519.PrivateKey) (string, error) {
-	txnParams, err := h.algod.SuggestedParams()
-	note := []byte(nil)
-	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
-
-	txn, err := transaction.MakeAssetDestroyTxn(assetDetails.ManagerAddr, txnParams.Fee,
-		txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID)
-
-	if err != nil {
-		h.log.WithError(err).Error("failed to send txn")
-		return "", err
-	}
-
-	txid, stx, err := crypto.SignTransaction(privateKey, txn)
-	if err != nil {
-		h.log.WithError(err).Error("Failed to sign transaction")
-		return "", err
-	}
-	h.log.Debugf("Transaction ID: %s", txid)
-	// Broadcast the transaction to the network
-	sendResponse, err := h.algod.SendRawTransaction(stx, &algod.Header{Key: "Content-Type", Value: "application/x-binary"})
-	if err != nil {
-		h.log.WithError(err).Error("failed to send transaction")
-		return "", err
-	}
-	h.log.Infof("Transaction ID raw: %s", sendResponse.TxID)
-	// Wait for transaction to be confirmed
-	err = h.waitForConfirmation(h.algod, sendResponse.TxID)
-	if err != nil {
-		return "", err
-	}
-
-	return sendResponse.TxID, nil
-}
-
-func (h *ManagerHandler) makeAndSendAssetFreezeTxn(assetDetails models.AssetFreeze, privateKey ed25519.PrivateKey) (string, error) {
-	txnParams, err := h.algod.SuggestedParams()
-	note := []byte(nil)
-	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
-
-	txn, err := transaction.MakeAssetFreezeTxn(assetDetails.FreezeAddr, txnParams.Fee,
-		txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID, assetDetails.TargetAddr, assetDetails.FreezeSetting)
-
-	if err != nil {
-		h.log.WithError(err).Error("failed to send txn")
-		return "", err
-	}
-
-	txid, stx, err := crypto.SignTransaction(privateKey, txn)
-	if err != nil {
-		h.log.WithError(err).Error("Failed to sign transaction")
-		return "", err
-	}
-	h.log.Debugf("Transaction ID: %s", txid)
-	// Broadcast the transaction to the network
-	sendResponse, err := h.algod.SendRawTransaction(stx, &algod.Header{Key: "Content-Type", Value: "application/x-binary"})
-	if err != nil {
-		h.log.WithError(err).Error("failed to send transaction")
-		return "", err
-	}
-	h.log.Infof("Transaction ID raw: %s", sendResponse.TxID)
-	// Wait for transaction to be confirmed
-	err = h.waitForConfirmation(h.algod, sendResponse.TxID)
-	if err != nil {
-		return "", err
-	}
-
-	return sendResponse.TxID, nil
-}
-
-func (h *ManagerHandler) makeAndSendAssetRevokeTxn(assetDetails models.AssetRevoke, privateKey ed25519.PrivateKey) (string, error) {
-	txnParams, err := h.algod.SuggestedParams()
-	note := []byte(nil)
-	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
-
-	txn, err := transaction.MakeAssetRevocationTxn(assetDetails.ClawbackAddr, assetDetails.TargetAddr, assetDetails.RecipientAddr, assetDetails.Amount, txnParams.Fee,
-		txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID)
-
-	if err != nil {
-		h.log.WithError(err).Error("failed to send txn")
-		return "", err
-	}
-
-	txid, stx, err := crypto.SignTransaction(privateKey, txn)
-	if err != nil {
-		h.log.WithError(err).Error("Failed to sign transaction")
-		return "", err
-	}
-	h.log.Debugf("Transaction ID: %s", txid)
-	// Broadcast the transaction to the network
-	sendResponse, err := h.algod.SendRawTransaction(stx, &algod.Header{Key: "Content-Type", Value: "application/x-binary"})
-	if err != nil {
-		h.log.WithError(err).Error("failed to send transaction")
-		return "", err
-	}
-	h.log.Infof("Transaction ID raw: %s", sendResponse.TxID)
 	// Wait for transaction to be confirmed
 	err = h.waitForConfirmation(h.algod, sendResponse.TxID)
 	if err != nil {
