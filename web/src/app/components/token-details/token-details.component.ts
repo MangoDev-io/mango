@@ -12,6 +12,8 @@ export class TokenDetailsComponent implements OnInit {
     @Input()
     currToken: Token
 
+    createButtonLoading = false
+
     selectedButton = 1
     assetManagementTabs = {
         '1': 'Freeze',
@@ -22,10 +24,19 @@ export class TokenDetailsComponent implements OnInit {
 
     constructor(private stateService: StateService) {}
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        console.log('Token')
+        console.log(this.currToken)
+    }
 
     shortenAddress(addr: string): string {
         if (addr) return addr.substring(0, 8) + ' . . . ' + addr.substring(50)
+    }
+
+    getButtonLoadingClass() {
+        if (this.createButtonLoading) {
+            return 'is-loading'
+        }
     }
 
     updateSelectedButton(b: number) {
@@ -38,6 +49,7 @@ export class TokenDetailsComponent implements OnInit {
     assetRequest = new AssetRequest()
     handleAssetRequest() {
         this.assetRequest.assetId = parseInt(this.currToken.assetId)
+        this.createButtonLoading = true
         switch (this.selectedButton) {
             case 1: {
                 console.log(
@@ -47,6 +59,7 @@ export class TokenDetailsComponent implements OnInit {
                     .freezeAsset(this.assetRequest)
                     .subscribe(x => {
                         console.log(x)
+                        this.createButtonLoading = false
                     })
                 break
             }
@@ -59,6 +72,7 @@ export class TokenDetailsComponent implements OnInit {
                     .revokeAsset(this.assetRequest)
                     .subscribe(x => {
                         console.log(x)
+                        this.createButtonLoading = false
                     })
                 break
             }
@@ -71,6 +85,7 @@ export class TokenDetailsComponent implements OnInit {
                     .modifyAsset(this.assetRequest)
                     .subscribe(x => {
                         console.log(x)
+                        this.createButtonLoading = false
                     })
                 break
             }
@@ -83,6 +98,7 @@ export class TokenDetailsComponent implements OnInit {
                     .destroyAsset(this.assetRequest)
                     .subscribe(x => {
                         console.log(x)
+                        this.createButtonLoading = false
                     })
                 break
             }

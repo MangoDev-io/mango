@@ -1,0 +1,121 @@
+<div class="modal" [ngClass]="getModalActiveClass()">
+    <div class="modal-background"></div>
+
+    <div class="modal-card" *ngIf="modalSuccess">
+        <header class="modal-card-head">
+            <p class="modal-card-title">
+                Request Successful! &nbsp;
+                <img
+                    class="notification__status-icon"
+                    src="../../../assets/check.svg"
+                />
+            </p>
+            <button
+                class="delete"
+                aria-label="close"
+                (click)="toggleModal()"
+            ></button>
+        </header>
+        <section class="modal-card-body">
+            <div class="columns">
+                <div class="column is-one-quarter">
+                    <p class="is-pulled-right is-size-5">Asset ID:</p>
+                </div>
+                <div class="column is-three-quarters">
+                    <a
+                        href="{{
+                            'https://goalseeker.purestake.io/algorand/testnet/asset/215451'
+                        }}"
+                        ><span class="tag is-dark is-medium is-pulled-left"
+                            >215451</span
+                        ></a
+                    >
+                </div>
+            </div>
+            <div class="columns">
+                <div class="column is-one-quarter">
+                    <p class="is-pulled-right is-size-5">TX Hash:</p>
+                </div>
+                <div class="column is-three-quarters">
+                    <a
+                        href="{{
+                            'https://goalseeker.purestake.io/algorand/testnet/transaction/RVGDF7UHGH2AGGVPEHO3OUUR4QCKEUDCEYDHSBSO7DD4CBBWKF4A'
+                        }}"
+                        ><span class="tag is-dark is-medium is-pulled-left">{{
+                            shortenTxHash(
+                                'RVGDF7UHGH2AGGVPEHO3OUUR4QCKEUDCEYDHSBSO7DD4CBBWKF4A'
+                            )
+                        }}</span></a
+                    >
+                </div>
+            </div>
+        </section>
+        <footer class="modal-card-foot">
+            <button
+                class="button is-warning is-fullwidth"
+                (click)="toggleModal()"
+            >
+                OK
+            </button>
+        </footer>
+    </div>
+
+    <div class="modal-card" *ngIf="!modalSuccess">
+        <header class="modal-card-head">
+            <p class="modal-card-title">
+                Request Failed! &nbsp;
+                <img
+                    class="notification__status-icon"
+                    src="../../../assets/error.svg"
+                />
+            </p>
+            <button
+                class="delete"
+                aria-label="close"
+                (click)="toggleModal()"
+            ></button>
+        </header>
+        <section class="modal-card-body">
+            <div class="columns">
+                <div class="column is-one-quarter">
+                    <p class="is-size-5">Error:</p>
+                </div>
+                <div class="column is-three-quarters">
+                    <a
+                        href="{{
+                            'https://goalseeker.purestake.io/algorand/testnet/asset/215451'
+                        }}"
+                        ><span class="tag is-dark is-medium"
+                            >failed to update asset details in database
+                        </span></a
+                    >
+                </div>
+            </div>
+            <div class="columns">
+                <div class="column is-one-quarter">
+                    <p class="is-size-5">TX Hash:</p>
+                </div>
+                <div class="column is-three-quarters">
+                    <a
+                        href="{{
+                            'https://goalseeker.purestake.io/algorand/testnet/transaction/RVGDF7UHGH2AGGVPEHO3OUUR4QCKEUDCEYDHSBSO7DD4CBBWKF4A'
+                        }}"
+                        ><span class="tag is-dark is-medium">{{
+                            shortenTxHash(
+                                'RVGDF7UHGH2AGGVPEHO3OUUR4QCKEUDCEYDHSBSO7DD4CBBWKF4A'
+                            )
+                        }}</span></a
+                    >
+                </div>
+            </div>
+        </section>
+        <footer class="modal-card-foot">
+            <button
+                class="button is-warning is-fullwidth"
+                (click)="toggleModal()"
+            >
+                OK
+            </button>
+        </footer>
+    </div>
+</div>

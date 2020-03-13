@@ -1,26 +1,28 @@
 <section class="container login__container">
-  <h1 class="login__big-text">
-    Welcome to Mango
-    <div class="login__icon baseline">
-      <img src="../../../assets/mango.svg" />
-    </div>
-  </h1>
-  <form #loginForm="ngForm">
-    <input
-      class="input is-warning login__input"
-      type="text"
-      placeholder="Enter Mnemonic Phrase"
-      [(ngModel)]="mnemonic"
-      name="mnemonic__input"
-    />
-    <button
-      (click)="loginClickHandler()"
-      class="button is-warning login__button"
-    >
-      Get Started &nbsp;
-      <div class="login__icon baseline">
-        <img src="../../../assets/rocket.svg" />
-      </div>
-    </button>
-  </form>
+    <h1 class="login__big-text">
+        Welcome to Mango
+        <div class="login__icon baseline">
+            <img src="../../../assets/mango.svg" />
+        </div>
+    </h1>
+    <form #loginForm="ngForm">
+        <input
+            class="input is-warning login__input"
+            type="text"
+            placeholder="Enter Mnemonic Phrase"
+            [(ngModel)]="mnemonic"
+            name="mnemonic__input"
+        />
+        <button
+            (click)="loginClickHandler()"
+            class="button is-warning login__button"
+        >
+            Get Started &nbsp;
+            <div class="login__icon baseline">
+                <img src="../../../assets/rocket.svg" />
+            </div>
+        </button>
+    </form>
+
+    <app-footer></app-footer>
 </section>

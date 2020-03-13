@@ -10,14 +10,24 @@ import { Token } from '../../token'
 export class TokenCreateComponent implements OnInit {
     assetCreate = new Token()
 
+    createButtonLoading = false
+
     constructor(private stateService: StateService) {}
 
     ngOnInit(): void {}
 
     createAsset() {
         console.log(JSON.stringify(this.assetCreate))
+        this.createButtonLoading = true
         this.stateService.createAsset(this.assetCreate).subscribe(x => {
             console.log(x)
+            this.createButtonLoading = false
         })
+    }
+
+    getButtonLoadingClass() {
+        if (this.createButtonLoading) {
+            return 'is-loading'
+        }
     }
 }
