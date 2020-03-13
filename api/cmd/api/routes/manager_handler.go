@@ -66,21 +66,23 @@ func makeResponseJSON(status string, message string, assetID uint64, txHash stri
 func (h *ManagerHandler) EncodeMnemonic(rw http.ResponseWriter, req *http.Request) {
 	body, err := ioutil.ReadAll(req.Body)
 
-	var res response
+	type tokenResponse struct {
+		Token   string `json:"token"`
+		Status  string `json:"status"`
+		Message string `json:"message"`
+	}
 
 	if err != nil {
 		h.log.WithError(err).Error("failed to read body")
 		rw.WriteHeader(http.StatusBadRequest)
 
-		res = response{
-			Status:  "error",
-			Message: "Failed to read request body",
-			AssetID: 0,
-			TXHash:  "",
-		}
 		rw.Header().Set("Content-Type", "application/json")
 
-		respJSON, _ := json.Marshal(res)
+		respJSON, _ := json.Marshal(tokenResponse{
+			Token:   "",
+			Status:  "error",
+			Message: "failed to read request body",
+		})
 		rw.Write(respJSON)
 		return
 	}
@@ -94,6 +96,26 @@ func (h *ManagerHandler) EncodeMnemonic(rw http.ResponseWriter, req *http.Reques
 	if err != nil {
 		h.log.WithError(err).Error("failed to unmarshal body")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		respJSON, _ := json.Marshal(tokenResponse{
+			Token:   "",
+			Status:  "error",
+			Message: "failed to unmarshal request body",
+		})
+		rw.Write(respJSON)
+		return
+	}
+
+	_, _, err = h.recoverAccount(request.Mnemonic)
+	if err != nil {
+		h.log.WithError(err).Error("failed to recover account from mnemonic")
+		rw.WriteHeader(http.StatusBadRequest)
+		respJSON, _ := json.Marshal(tokenResponse{
+			Token:   "",
+			Status:  "error",
+			Message: "failed to recover account from mnemonic",
+		})
+		rw.Write(respJSON)
 		return
 	}
 
@@ -103,13 +125,13 @@ func (h *ManagerHandler) EncodeMnemonic(rw http.ResponseWriter, req *http.Reques
 	if err != nil {
 		h.log.WithError(err).Error("failed to encode jwt claims")
 		rw.WriteHeader(http.StatusInternalServerError)
+		respJSON, _ := json.Marshal(tokenResponse{
+			Token:   "",
+			Status:  "error",
+			Message: "failed to encode jwt claims",
+		})
+		rw.Write(respJSON)
 		return
-	}
-
-	type tokenResponse struct {
-		Token   string `json:"token"`
-		Status  string `json:"status"`
-		Message string `json:"message"`
 	}
 
 	var response tokenResponse
@@ -123,10 +145,12 @@ func (h *ManagerHandler) EncodeMnemonic(rw http.ResponseWriter, req *http.Reques
 	if err != nil {
 		h.log.WithError(err).Error("failed to marshal response body")
 		rw.WriteHeader(http.StatusInternalServerError)
-		response.Status = "error"
-		response.Message = "failed to marshal token response body"
 
-		respJSON, _ := json.Marshal(response)
+		respJSON, _ := json.Marshal(tokenResponse{
+			Token:   "",
+			Status:  "error",
+			Message: "failed to marshal token response body",
+		})
 		rw.Write(respJSON)
 		return
 	}
