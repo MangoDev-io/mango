@@ -15,7 +15,7 @@ export class TokenDetailsComponent implements OnInit {
     createButtonLoading = false
 
     showNotificationModal = false
-    notificationModalSuccess = true
+    notificationType: number
 
     responseAssetId = ''
     responseTxHash = ''
@@ -66,6 +66,8 @@ export class TokenDetailsComponent implements OnInit {
                     x => {
                         console.log(x)
                         this.createButtonLoading = false
+                        this.notificationType = 0
+                        this.showNotificationModal = false
                         this.showNotificationModal = true
                         this.responseAssetId = x.assetId.toString()
                         this.responseTxHash = x.txHash
@@ -75,7 +77,9 @@ export class TokenDetailsComponent implements OnInit {
                         console.error(err)
                         this.createButtonLoading = false
                         this.showNotificationModal = true
-                        this.notificationModalSuccess = false
+                        this.showNotificationModal = false
+                        this.showNotificationModal = true
+                        this.notificationType = 1
                         this.responseError = err.error.message
                     }
                 )
@@ -90,6 +94,8 @@ export class TokenDetailsComponent implements OnInit {
                     x => {
                         console.log(x)
                         this.createButtonLoading = false
+                        this.notificationType = 0
+                        this.showNotificationModal = false
                         this.showNotificationModal = true
                         this.responseAssetId = x.assetId.toString()
                         this.responseTxHash = x.txHash
@@ -99,7 +105,9 @@ export class TokenDetailsComponent implements OnInit {
                         console.error(err)
                         this.createButtonLoading = false
                         this.showNotificationModal = true
-                        this.notificationModalSuccess = false
+                        this.showNotificationModal = false
+                        this.showNotificationModal = true
+                        this.notificationType = 1
                         this.responseError = err.error.message
                     }
                 )
@@ -114,6 +122,8 @@ export class TokenDetailsComponent implements OnInit {
                     x => {
                         console.log(x)
                         this.createButtonLoading = false
+                        this.notificationType = 0
+                        this.showNotificationModal = false
                         this.showNotificationModal = true
                         this.responseAssetId = x.assetId.toString()
                         this.responseTxHash = x.txHash
@@ -123,7 +133,9 @@ export class TokenDetailsComponent implements OnInit {
                         console.error(err)
                         this.createButtonLoading = false
                         this.showNotificationModal = true
-                        this.notificationModalSuccess = false
+                        this.showNotificationModal = false
+                        this.showNotificationModal = true
+                        this.notificationType = 1
                         this.responseError = err.error.message
                     }
                 )
@@ -134,26 +146,38 @@ export class TokenDetailsComponent implements OnInit {
                 console.log(
                     'Destroy request: ' + JSON.stringify(this.assetRequest)
                 )
-                this.stateService.destroyAsset(this.assetRequest).subscribe(
-                    x => {
-                        console.log(x)
-                        this.stateService.setReloadListings()
-                        this.createButtonLoading = false
-                        this.showNotificationModal = true
-                        this.responseAssetId = x.assetId.toString()
-                        this.responseTxHash = x.txHash
-                        this.stateService.setReloadListings()
-                    },
-                    err => {
-                        console.error(err)
-                        this.createButtonLoading = false
-                        this.showNotificationModal = true
-                        this.notificationModalSuccess = false
-                        this.responseError = err.error.message
-                    }
-                )
+
+                this.notificationType = 2
+                this.showNotificationModal = false
+                this.showNotificationModal = true
+
                 break
             }
         }
+    }
+
+    handleDestroy() {
+        this.showNotificationModal = false
+        this.assetRequest.assetId = parseInt(this.currToken.assetId)
+        this.stateService.destroyAsset(this.assetRequest).subscribe(
+            x => {
+                console.log(x)
+                this.notificationType = 0
+                this.createButtonLoading = false
+                this.showNotificationModal = false
+                this.showNotificationModal = true
+                this.responseAssetId = x.assetId.toString()
+                this.responseTxHash = x.txHash
+                this.stateService.setReloadListings()
+            },
+            err => {
+                console.error(err)
+                this.createButtonLoading = false
+                this.showNotificationModal = false
+                this.showNotificationModal = true
+                this.notificationType = 1
+                this.responseError = err.error.message
+            }
+        )
     }
 }

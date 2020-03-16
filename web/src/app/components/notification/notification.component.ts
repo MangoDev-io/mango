@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core'
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core'
 
 @Component({
     selector: 'app-notification',
@@ -9,8 +9,11 @@ export class NotificationComponent implements OnInit {
     @Input()
     showModal = true
 
+    // 0 = success
+    // 1 = failed
+    // 2 = confirm
     @Input()
-    modalSuccess = true
+    notificationType = 0
 
     @Input()
     assetId: string
@@ -20,6 +23,9 @@ export class NotificationComponent implements OnInit {
 
     @Input()
     error: string
+
+    @Output()
+    confirmed = new EventEmitter<boolean>()
 
     constructor() {}
 
@@ -42,5 +48,9 @@ export class NotificationComponent implements OnInit {
                 ' . . . ' +
                 this.txHash.substring(44)
             )
+    }
+
+    confirmDestroy() {
+        this.confirmed.emit(true)
     }
 }

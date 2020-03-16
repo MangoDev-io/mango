@@ -1,10 +1,11 @@
 <div class="container">
     <app-notification
         [showModal]="showNotificationModal"
-        [modalSuccess]="notificationModalSuccess"
+        [notificationType]="notificationType"
         [assetId]="responseAssetId"
         [txHash]="responseTxHash"
         [error]="responseError"
+        (confirmed)="handleDestroy()"
     ></app-notification>
     <article class="message tokenDetails__message">
         <div class="message-header">
@@ -459,7 +460,9 @@
                                 />
                                 <app-notification
                                     [showModal]="showNotificationModal"
-                                    [modalSuccess]="notificationModalSuccess"
+                                    [modalSuccess]="
+                                        notificationModalSuccess ? 0 : 1
+                                    "
                                     [assetId]="responseAssetId"
                                     [txHash]="responseTxHash"
                                     [error]="responseError"

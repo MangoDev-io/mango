@@ -1,7 +1,7 @@
 <div class="container">
     <app-notification
         [showModal]="showNotificationModal"
-        [modalSuccess]="notificationModalSuccess"
+        [modalSuccess]="notificationModalSuccess ? 0 : 1"
         [assetId]="responseAssetId"
         [txHash]="responseTxHash"
         [error]="responseError"

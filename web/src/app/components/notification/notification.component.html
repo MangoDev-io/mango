@@ -1,7 +1,7 @@
 <div class="modal" [ngClass]="getModalActiveClass()">
     <div class="modal-background"></div>
 
-    <div class="modal-card" *ngIf="modalSuccess">
+    <div class="modal-card" *ngIf="notificationType === 0">
         <header class="modal-card-head">
             <p class="modal-card-title">
                 Request Successful! &nbsp;
@@ -62,7 +62,7 @@
         </footer>
     </div>
 
-    <div class="modal-card" *ngIf="!modalSuccess">
+    <div class="modal-card" *ngIf="notificationType === 1">
         <header class="modal-card-head">
             <p class="modal-card-title">
                 Request Failed! &nbsp;
@@ -110,6 +110,39 @@
                 (click)="toggleModal()"
             >
                 OK
+            </button>
+        </footer>
+    </div>
+
+    <div class="modal-card" *ngIf="notificationType === 2">
+        <header class="modal-card-head">
+            <p class="modal-card-title">
+                Confirm Action!
+            </p>
+            <button
+                class="delete"
+                aria-label="close"
+                (click)="toggleModal()"
+            ></button>
+        </header>
+        <section class="modal-card-body">
+            <p class="is-size-5">
+                Are you sure you want to proceed? Destroying a token is
+                irreversible.
+            </p>
+        </section>
+        <footer class="modal-card-foot">
+            <button
+                class="button is-warning is-fullwidth"
+                (click)="confirmDestroy()"
+            >
+                Yes
+            </button>
+            <button
+                class="button is-danger is-fullwidth"
+                (click)="toggleModal()"
+            >
+                No
             </button>
         </footer>
     </div>
