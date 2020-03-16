@@ -1,7 +1,5 @@
 ### WEB
 
-- redirect to /login on /manage reload
-
 ### API
 
 ### Reach goals
