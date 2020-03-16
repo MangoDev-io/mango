@@ -10,12 +10,28 @@ _Requirements_
 
 _Setup_
 
-1. Replace `psToken` in API `main.go`
-
-Run the following commands to start the project from the root dir:
+1. Create a `.env` file in `/api/`
+2. Set the following environment variables in the file
 
 ```
-docker-compose down
+API_ALGODADDRESS=<purestake node address>
+API_PSTOKEN=<purestake token>
+
+API_POSTGRESQLUSERNAME=
+API_POSTGRESQLPASSWORD=
+API_POSTGRESQLDATABASE=
+API_POSTGRESQLHOST=db:5432
+
+API_TOKENAUTHPASSWORD=
+```
+
+3. Edit the `docker-compose.yml` environment variables for `db` to set the Postgres database initialization configuration
+
+4. Update the baseURL in the `web/src/app/state.service.ts` to `localhost:5000` if running on localhost, or to your hosted API address
+
+5. Run the following commands to start the project from the root dir:
+
+```
 docker-compose build
 docker-compose up
 ```
