@@ -19,7 +19,6 @@ import (
 	"github.com/algorand/go-algorand-sdk/mnemonic"
 	"github.com/algorand/go-algorand-sdk/transaction"
 	"github.com/algorand/go-algorand-sdk/types"
-	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/constants"
 	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/data"
 	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/models"
 	"github.com/sirupsen/logrus"
@@ -292,7 +291,7 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 
 	// Retrieve asset ID by grabbing the max asset ID
 	// from the creator account's holdings.
-	act, err := h.algod.AccountInformation(constants.TestAccountPublicKey)
+	act, err := h.algod.AccountInformation(address)
 	if err != nil {
 		h.log.WithError(err).Error("failed to get account information")
 		rw.WriteHeader(http.StatusInternalServerError)
