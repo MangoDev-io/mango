@@ -31,6 +31,7 @@ export class TokenCreateComponent implements OnInit {
                 console.log(x)
                 this.createButtonLoading = false
                 this.showNotificationModal = true
+                this.clearForm()
                 this.responseAssetId = x.assetId.toString()
                 this.responseTxHash = x.txHash
                 this.stateService.setReloadListings()
@@ -40,9 +41,14 @@ export class TokenCreateComponent implements OnInit {
                 this.createButtonLoading = false
                 this.showNotificationModal = true
                 this.notificationModalSuccess = false
+                this.clearForm()
                 this.responseError = err.error.message
             }
         )
+    }
+
+    clearForm() {
+        this.assetCreate = new Token()
     }
 
     getButtonLoadingClass() {

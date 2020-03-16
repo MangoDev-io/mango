@@ -1,6 +1,5 @@
 ### WEB
 
-- clear management forms on submit
 - redirect to /login on /manage reload
 
 ### API
