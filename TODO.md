@@ -1,7 +1,8 @@
 ### WEB
 
-- confirmation msg for destroy
-- clear management forms on submit
+- confirmation msg for destroy (doesn't pop up on the 2nd action)
+- confirmation msg for create (doesn't pop up on the 2nd action)
+- confirmation msg for modify (pops up twice on first action)
 - why no notification on destroy???
 - redirect to /login on /manage reload
 

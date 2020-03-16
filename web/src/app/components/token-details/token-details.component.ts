@@ -155,5 +155,11 @@ export class TokenDetailsComponent implements OnInit {
                 break
             }
         }
+
+        this.clearForm()
+    }
+
+    clearForm() {
+        this.assetRequest = new AssetRequest()
     }
 }
