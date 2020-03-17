@@ -1,5 +1,8 @@
 ### WEB
 
+- Delete background from favicon
+- Add error message for when the mnemonic is invalid
+
 ### API
 
 ### Reach goals
