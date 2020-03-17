@@ -458,15 +458,6 @@
                                     [(ngModel)]="assetRequest.newClawbackAddr"
                                     placeholder="e.g. MTTIYHO4QQAEZ6VPLW44YV7AT7TY4SDBYGLFARD7POC2JMSIIK3RVWZVZU"
                                 />
-                                <app-notification
-                                    [showModal]="showNotificationModal"
-                                    [modalSuccess]="
-                                        notificationModalSuccess ? 0 : 1
-                                    "
-                                    [assetId]="responseAssetId"
-                                    [txHash]="responseTxHash"
-                                    [error]="responseError"
-                                ></app-notification>
                             </div>
                         </div>
                     </div>

@@ -30,6 +30,7 @@ export class TokenCreateComponent implements OnInit {
             x => {
                 console.log(x)
                 this.createButtonLoading = false
+                this.showNotificationModal = false
                 this.showNotificationModal = true
                 this.clearForm()
                 this.responseAssetId = x.assetId.toString()
@@ -39,6 +40,7 @@ export class TokenCreateComponent implements OnInit {
             err => {
                 console.error(err)
                 this.createButtonLoading = false
+                this.showNotificationModal = false
                 this.showNotificationModal = true
                 this.notificationModalSuccess = false
                 this.clearForm()
