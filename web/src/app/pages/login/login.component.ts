@@ -10,6 +10,9 @@ import { StateService } from 'src/app/state.service'
 export class LoginComponent implements OnInit {
     public mnemonic: string
 
+    showNotificationModal = false
+    responseError = 'Invalid Mnemonic'
+
     constructor(private router: Router, private stateService: StateService) {}
 
     ngOnInit() {}
@@ -24,7 +27,10 @@ export class LoginComponent implements OnInit {
                     this.router.navigate(['/manage'])
                 },
                 err => {
-                    console.log(err)
+                    this.showNotificationModal = true
+                    this.showNotificationModal = false
+                    this.showNotificationModal = true
+                    console.error(err)
                 }
             )
         }

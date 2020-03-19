@@ -1,7 +1,7 @@
 ### WEB
 
 - Delete background from favicon
-- Add error message for when the mnemonic is invalid
+- Invalid mnemonic modal won't show more than once
 
 ### API
 
