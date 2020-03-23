@@ -1,5 +1,8 @@
 ### WEB
 
+- Delete background from favicon
+- Invalid mnemonic modal won't show more than once
+
 ### API
 
 ### Reach goals

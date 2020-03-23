@@ -12,8 +12,8 @@ import { Response } from './response'
     providedIn: 'root',
 })
 export class StateService {
-    private baseURL = 'http://localhost:5000'
-    //private baseURL = 'https://api.mangodev.io'
+    // private baseURL = 'http://localhost:5000'
+    private baseURL = 'https://api.mangodev.io'
 
     private authToken: string
 
@@ -120,9 +120,7 @@ export class StateService {
         let options = {
             headers: httpHeaders,
         }
-
-        return this.httpClient.post<Response>(
-            this.baseURL + '/revokeAsset',
+        AAAA
             a,
             options
         )
