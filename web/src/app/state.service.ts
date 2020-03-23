@@ -120,7 +120,9 @@ export class StateService {
         let options = {
             headers: httpHeaders,
         }
-        AAAA
+
+        return this.httpClient.post<Response>(
+            this.baseURL + '/revokeAsset',
             a,
             options
         )
