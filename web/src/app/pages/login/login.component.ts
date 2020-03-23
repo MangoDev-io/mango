@@ -11,7 +11,8 @@ export class LoginComponent implements OnInit {
     public mnemonic: string
 
     showNotificationModal = false
-    responseError = 'Invalid Mnemonic'
+    notificationType = 1
+    responseError: string
 
     constructor(private router: Router, private stateService: StateService) {}
 
@@ -27,12 +28,15 @@ export class LoginComponent implements OnInit {
                     this.router.navigate(['/manage'])
                 },
                 err => {
-                    this.showNotificationModal = true
-                    this.showNotificationModal = false
+                    this.responseError = 'Invalid Mnemonic'
                     this.showNotificationModal = true
                     console.error(err)
                 }
             )
         }
+    }
+
+    modalClosed() {
+        this.showNotificationModal = false
     }
 }

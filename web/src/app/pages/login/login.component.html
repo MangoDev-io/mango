@@ -1,8 +1,9 @@
 <section class="container login__container">
     <app-notification
         [showModal]="showNotificationModal"
-        [notificationType]="1"
+        [notificationType]="notificationType"
         [error]="responseError"
+        (modalClosed)="modalClosed()"
     ></app-notification>
     <h1 class="login__big-text">
         Welcome to Mango
