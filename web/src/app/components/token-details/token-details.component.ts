@@ -67,7 +67,6 @@ export class TokenDetailsComponent implements OnInit {
                         console.log(x)
                         this.createButtonLoading = false
                         this.notificationType = 0
-                        this.showNotificationModal = false
                         this.showNotificationModal = true
                         this.responseAssetId = x.assetId.toString()
                         this.responseTxHash = x.txHash
@@ -76,8 +75,6 @@ export class TokenDetailsComponent implements OnInit {
                     err => {
                         console.error(err)
                         this.createButtonLoading = false
-                        this.showNotificationModal = true
-                        this.showNotificationModal = false
                         this.showNotificationModal = true
                         this.notificationType = 1
                         this.responseError = err.error.message
@@ -95,7 +92,6 @@ export class TokenDetailsComponent implements OnInit {
                         console.log(x)
                         this.createButtonLoading = false
                         this.notificationType = 0
-                        this.showNotificationModal = false
                         this.showNotificationModal = true
                         this.responseAssetId = x.assetId.toString()
                         this.responseTxHash = x.txHash
@@ -104,10 +100,8 @@ export class TokenDetailsComponent implements OnInit {
                     err => {
                         console.error(err)
                         this.createButtonLoading = false
-                        this.showNotificationModal = true
-                        this.showNotificationModal = false
-                        this.showNotificationModal = true
                         this.notificationType = 1
+                        this.showNotificationModal = true
                         this.responseError = err.error.message
                     }
                 )
@@ -123,7 +117,6 @@ export class TokenDetailsComponent implements OnInit {
                         console.log(x)
                         this.createButtonLoading = false
                         this.notificationType = 0
-                        this.showNotificationModal = false
                         this.showNotificationModal = true
                         this.responseAssetId = x.assetId.toString()
                         this.responseTxHash = x.txHash
@@ -131,11 +124,9 @@ export class TokenDetailsComponent implements OnInit {
                     },
                     err => {
                         console.error(err)
+                        this.notificationType = 1
                         this.createButtonLoading = false
                         this.showNotificationModal = true
-                        this.showNotificationModal = false
-                        this.showNotificationModal = true
-                        this.notificationType = 1
                         this.responseError = err.error.message
                     }
                 )
@@ -148,7 +139,6 @@ export class TokenDetailsComponent implements OnInit {
                 )
 
                 this.notificationType = 2
-                this.showNotificationModal = false
                 this.showNotificationModal = true
 
                 break
@@ -170,7 +160,6 @@ export class TokenDetailsComponent implements OnInit {
                 console.log(x)
                 this.notificationType = 0
                 this.createButtonLoading = false
-                this.showNotificationModal = false
                 this.showNotificationModal = true
                 this.responseAssetId = x.assetId.toString()
                 this.responseTxHash = x.txHash
@@ -179,11 +168,15 @@ export class TokenDetailsComponent implements OnInit {
             err => {
                 console.error(err)
                 this.createButtonLoading = false
-                this.showNotificationModal = false
                 this.showNotificationModal = true
                 this.notificationType = 1
                 this.responseError = err.error.message
             }
         )
+    }
+
+    modalClosed() {
+        this.showNotificationModal = false
+        this.createButtonLoading = false
     }
 }

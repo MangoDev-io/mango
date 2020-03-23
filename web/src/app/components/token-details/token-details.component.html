@@ -6,6 +6,7 @@
         [txHash]="responseTxHash"
         [error]="responseError"
         (confirmed)="handleDestroy()"
+        (modalClosed)="modalClosed()"
     ></app-notification>
     <article class="message tokenDetails__message">
         <div class="message-header">

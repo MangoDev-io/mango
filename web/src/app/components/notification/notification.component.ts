@@ -27,12 +27,16 @@ export class NotificationComponent implements OnInit {
     @Output()
     confirmed = new EventEmitter<boolean>()
 
+    @Output()
+    modalClosed = new EventEmitter<boolean>()
+
     constructor() {}
 
     ngOnInit(): void {}
 
     toggleModal() {
         this.showModal = !this.showModal
+        this.modalClosed.emit(this.showModal)
     }
 
     getModalActiveClass() {
