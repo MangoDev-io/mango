@@ -6,9 +6,7 @@ import (
 
 	"github.com/go-chi/jwtauth"
 
-	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/data"
-
-	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/config"
+	"github.com/mangodev-io/mango/api/cmd/api/config"
 
 	"github.com/algorand/go-algorand-sdk/client/algod"
 
@@ -49,16 +47,6 @@ func main() {
 	}
 	logger.Info("Loaded configuration...")
 
-	// Setup Database
-	databaseService := data.NewDatabaseService(config.DatabaseConfig).WaitUntilReady()
-	logger.Info("Connected to database...")
-
-	err = databaseService.Instantiate()
-	if err != nil {
-		logger.WithError(err).Panic("failed to instantiate database")
-	}
-	logger.Info("Instantiated database...")
-
 	// Setup Algod Client
 	var headers []*algod.Header
 	headers = append(headers, &algod.Header{"X-API-Key", config.PSToken})
@@ -71,7 +59,7 @@ func main() {
 	tokenAuth := jwtauth.New("HS256", []byte(config.TokenAuthPassword), nil)
 
 	// Setup Router
-	routerService := NewRouterService(logger, databaseService, &algodClient, tokenAuth)
+	routerService := NewRouterService(logger, &algodClient, tokenAuth)
 
 	// Serve
 	logger.Info("Starting server on port 5000")

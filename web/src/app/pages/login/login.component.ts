@@ -25,9 +25,10 @@ export class LoginComponent implements OnInit {
             this.stateService.encodeMnemonic(this.mnemonic).subscribe(
                 (x: any) => {
                     this.stateService.setAuthToken(x.token)
+                    this.stateService.setAddress(x.address)
                     this.router.navigate(['/manage'])
                 },
-                err => {
+                (err) => {
                     this.responseError = 'Invalid Mnemonic'
                     this.showNotificationModal = true
                     console.error(err)

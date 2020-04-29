@@ -19,15 +19,13 @@ import (
 	"github.com/algorand/go-algorand-sdk/mnemonic"
 	"github.com/algorand/go-algorand-sdk/transaction"
 	"github.com/algorand/go-algorand-sdk/types"
-	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/data"
-	"github.com/haardikk21/algorand-asset-manager/api/cmd/api/models"
+	"github.com/mangodev-io/mango/api/cmd/api/models"
 	"github.com/sirupsen/logrus"
 )
 
 // ManagerHandler is the router handler for Mango
 type ManagerHandler struct {
 	log   *logrus.Logger
-	db    *data.DatabaseService
 	algod *algod.Client
 	jwt   *jwtauth.JWTAuth
 }
@@ -40,10 +38,9 @@ type response struct {
 }
 
 // NewManagerHandler creates a new instance of ManagerHandler
-func NewManagerHandler(log *logrus.Logger, db *data.DatabaseService, algod *algod.Client, jwt *jwtauth.JWTAuth) *ManagerHandler {
+func NewManagerHandler(log *logrus.Logger, algod *algod.Client, jwt *jwtauth.JWTAuth) *ManagerHandler {
 	return &ManagerHandler{
 		log:   log,
-		db:    db,
 		algod: algod,
 		jwt:   jwt,
 	}
@@ -67,6 +64,7 @@ func (h *ManagerHandler) EncodeMnemonic(rw http.ResponseWriter, req *http.Reques
 
 	type tokenResponse struct {
 		Token   string `json:"token"`
+		Address string `json:"address"`
 		Status  string `json:"status"`
 		Message string `json:"message"`
 	}
@@ -105,7 +103,7 @@ func (h *ManagerHandler) EncodeMnemonic(rw http.ResponseWriter, req *http.Reques
 		return
 	}
 
-	_, _, err = h.recoverAccount(request.Mnemonic)
+	_, address, err := h.recoverAccount(request.Mnemonic)
 	if err != nil {
 		h.log.WithError(err).Error("failed to recover account from mnemonic")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -134,6 +132,7 @@ func (h *ManagerHandler) EncodeMnemonic(rw http.ResponseWriter, req *http.Reques
 	}
 
 	var response tokenResponse
+	response.Address = address
 	response.Token = tokenString
 	response.Status = "success"
 	response.Message = ""
@@ -182,37 +181,12 @@ func (h *ManagerHandler) GetAssets(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	ownedAssets, err := h.db.SelectAllAssetsForAddress(address)
-	if err != nil {
-		h.log.WithError(err).Error("failed to select rows")
-		rw.WriteHeader(http.StatusBadRequest)
-
-		respJSON := makeResponseJSON("error", "failed to select assets for address "+address, 0, "")
-		rw.Write(respJSON)
-		return
-	}
+	account, err := h.algod.AccountInformation(address)
 
 	var listing []models.AssetListing
-	for _, asset := range ownedAssets {
-		var permissions []string
-		if address == asset.CreatorAddress {
-			permissions = append(permissions, "creator")
-		}
-		if address == asset.ManagerAddress {
-			permissions = append(permissions, "manager")
-		}
-		if address == asset.ReserveAddress {
-			permissions = append(permissions, "reserve")
-		}
-		if address == asset.FreezeAddress {
-			permissions = append(permissions, "freeze")
-		}
-		if address == asset.ClawbackAddress {
-			permissions = append(permissions, "clawback")
-		}
+	for assetID := range account.Assets {
 		listing = append(listing, models.AssetListing{
-			AssetID:     asset.AssetId,
-			Permissions: permissions,
+			AssetID: strconv.FormatUint(assetID, 10),
 		})
 	}
 
@@ -311,16 +285,6 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 	assetInfo, err := h.algod.AssetInformation(assetID)
 	h.log.Debugf("Asset info: %#v", assetInfo)
 
-	err = h.db.InsertNewAsset(assetDetails.CreatorAddr, assetDetails.ManagerAddr, assetDetails.ReserveAddr, assetDetails.FreezeAddr, assetDetails.ClawbackAddr, strconv.FormatUint(assetID, 10))
-	if err != nil {
-		h.log.WithError(err).Error("failed to insert new asset in database")
-		rw.WriteHeader(http.StatusInternalServerError)
-
-		respJSON := makeResponseJSON("error", "failed to insert asset in database", assetID, txID)
-		rw.Write(respJSON)
-		return
-	}
-
 	respJSON := makeResponseJSON("success", "", assetID, txID)
 	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(respJSON)
@@ -385,16 +349,6 @@ func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) 
 	}
 	h.log.Debug("Transaction ID: ", txID)
 
-	err = h.db.UpdateAssetAddresses(assetDetails.NewManagerAddr, assetDetails.NewReserveAddr, assetDetails.NewFreezeAddr, assetDetails.NewClawbackAddr, strconv.FormatUint(assetDetails.AssetID, 10))
-	if err != nil {
-		h.log.WithError(err).Error("failed to update asset addresses")
-		rw.WriteHeader(http.StatusInternalServerError)
-
-		respJSON := makeResponseJSON("error", "failed to update asset in database", assetDetails.AssetID, txID)
-		rw.Write(respJSON)
-		return
-	}
-
 	respJSON := makeResponseJSON("success", "", assetDetails.AssetID, txID)
 	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(respJSON)
@@ -458,13 +412,6 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 		return
 	}
 	h.log.Debug("Transaction ID: ", txID)
-
-	err = h.db.DeleteAssetByAssetID(assetDetails.AssetID)
-	if err != nil {
-		h.log.WithError(err).Error("failed to delete asset")
-		rw.WriteHeader(http.StatusInternalServerError)
-		return
-	}
 
 	respJSON := makeResponseJSON("success", "", assetDetails.AssetID, txID)
 	rw.Header().Set("Content-Type", "application/json")

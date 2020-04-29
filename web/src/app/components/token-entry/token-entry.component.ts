@@ -13,9 +13,6 @@ export class TokenEntryComponent implements OnInit {
     assetId: string
 
     @Input()
-    permissions: string[]
-
-    @Input()
     entryId: any
 
     token: Token
@@ -70,7 +67,24 @@ export class TokenEntryComponent implements OnInit {
     }
 
     async getAssetDetails(assetId: string) {
+        const address = this.stateService.getAddress()
         let assetInfo = await this.stateService.getAssetDetails(assetId)
+        let permissions = []
+        if (address === assetInfo.managerkey) {
+            permissions.push('manager')
+        }
+        if (address === assetInfo.reserveaddr) {
+            permissions.push('reserve')
+        }
+        if (address === assetInfo.freezeaddr) {
+            permissions.push('freeze')
+        }
+        if (address === assetInfo.clawbackaddr) {
+            permissions.push('clawback')
+        }
+        if (address === assetInfo.creator) {
+            permissions.push('creator')
+        }
         this.token = new Token({
             assetId: assetId,
             creatorAddr: assetInfo.creator,
@@ -85,7 +99,7 @@ export class TokenEntryComponent implements OnInit {
             reserveAddr: assetInfo.reserveaddr,
             freezeAddr: assetInfo.freezeaddr,
             clawbackAddr: assetInfo.clawbackaddr,
-            permissions: this.permissions,
+            permissions: permissions,
         })
     }
 }

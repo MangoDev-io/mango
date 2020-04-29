@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core'
 import { Token } from './token'
 import { AssetRequest } from './assetRequest'
-import { BehaviorSubject, Observable, from } from 'rxjs'
+import { BehaviorSubject, Observable } from 'rxjs'
 import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { AssetListing } from './asset-listing'
 import { environment } from '../environments/environment'
@@ -12,10 +12,11 @@ import { Response } from './response'
     providedIn: 'root',
 })
 export class StateService {
-    // private baseURL = 'http://localhost:5000'
-    private baseURL = 'https://api.mangodev.io'
+    private baseURL = 'http://localhost:5000'
+    // private baseURL = 'https://api.mangodev.io'
 
     private authToken: string
+    private address: string
 
     private selectedTokenSubject = new BehaviorSubject<Token>(null)
     private showCreateSubject = new BehaviorSubject<boolean>(false)
@@ -49,6 +50,14 @@ export class StateService {
 
     setAuthToken(a: string) {
         this.authToken = a
+    }
+
+    setAddress(a: string) {
+        this.address = a
+    }
+
+    getAddress(): string {
+        return this.address
     }
 
     setReloadListings() {
