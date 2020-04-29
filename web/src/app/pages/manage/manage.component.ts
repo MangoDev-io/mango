@@ -16,6 +16,7 @@ export class ManageComponent implements OnInit {
     selectedToken: Token
 
     dropdownIsActive: boolean = false
+    activeNetwork: String = 'testnet'
 
     constructor(private stateService: StateService) {
         this.showTokenSubscription = this.stateService
@@ -35,5 +36,20 @@ export class ManageComponent implements OnInit {
 
     toggleDropdown() {
         this.dropdownIsActive = !this.dropdownIsActive
+    }
+
+    setMainnetActive() {
+        this.activeNetwork = 'mainnet'
+        this.dropdownIsActive = false
+    }
+
+    setTestnetActive() {
+        this.activeNetwork = 'testnet'
+        this.dropdownIsActive = false
+    }
+
+    setBetanetActive() {
+        this.activeNetwork = 'betanet'
+        this.dropdownIsActive = false
     }
 }

@@ -20,24 +20,45 @@
                             aria-haspopup="true"
                             aria-controls="dropdown-menu"
                         >
-                            <span>Select Network</span>
-                            <span class="icon is-small">
-                                <i
-                                    class="fas fa-angle-down"
-                                    aria-hidden="true"
-                                ></i>
-                            </span>
+                            <span>{{
+                                activeNetwork.charAt(0).toUpperCase() +
+                                    activeNetwork.substring(1)
+                            }}</span>
                         </button>
                     </div>
                     <div class="dropdown-menu" id="dropdown-menu" role="menu">
                         <div class="dropdown-content">
-                            <a href="#" class="dropdown-item">
+                            <a
+                                class="dropdown-item"
+                                [ngClass]="
+                                    activeNetwork === 'mainnet'
+                                        ? 'is-active'
+                                        : ''
+                                "
+                                (click)="setMainnetActive()"
+                            >
                                 Mainnet
                             </a>
-                            <a class="dropdown-item is-active">
+                            <a
+                                class="dropdown-item"
+                                [ngClass]="
+                                    activeNetwork === 'testnet'
+                                        ? 'is-active'
+                                        : ''
+                                "
+                                (click)="setTestnetActive()"
+                            >
                                 Testnet
                             </a>
-                            <a href="#" class="dropdown-item">
+                            <a
+                                class="dropdown-item"
+                                [ngClass]="
+                                    activeNetwork === 'betanet'
+                                        ? 'is-active'
+                                        : ''
+                                "
+                                (click)="setBetanetActive()"
+                            >
                                 Betanet
                             </a>
                         </div>
