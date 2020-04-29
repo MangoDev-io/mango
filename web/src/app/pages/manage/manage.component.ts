@@ -15,19 +15,25 @@ export class ManageComponent implements OnInit {
     showTokenCreate: boolean
     selectedToken: Token
 
+    dropdownIsActive: boolean = false
+
     constructor(private stateService: StateService) {
         this.showTokenSubscription = this.stateService
             .getShowCreateToken()
-            .subscribe(b => {
+            .subscribe((b) => {
                 this.showTokenCreate = b
             })
 
         this.selectedTokenSubscription = this.stateService
             .getSelectedToken()
-            .subscribe(t => {
+            .subscribe((t) => {
                 this.selectedToken = t
             })
     }
 
     ngOnInit() {}
+
+    toggleDropdown() {
+        this.dropdownIsActive = !this.dropdownIsActive
+    }
 }
