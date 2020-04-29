@@ -21,8 +21,10 @@
                             aria-controls="dropdown-menu"
                         >
                             <span>{{
-                                activeNetwork.charAt(0).toUpperCase() +
-                                    activeNetwork.substring(1)
+                                this.stateService.activeNetwork
+                                    .charAt(0)
+                                    .toUpperCase() +
+                                    this.stateService.activeNetwork.substring(1)
                             }}</span>
                         </button>
                     </div>

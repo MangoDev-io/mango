@@ -28,6 +28,8 @@ export class StateService {
         ''
     )
 
+    public activeNetwork: string = 'testnet'
+
     constructor(private httpClient: HttpClient) {
         this.showCreateSubject.next(true)
     }
