@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core'
+import { StateService } from '../../state.service'
 
 @Component({
     selector: 'app-notification',
@@ -30,7 +31,7 @@ export class NotificationComponent implements OnInit {
     @Output()
     modalClosed = new EventEmitter<boolean>()
 
-    constructor() {}
+    constructor(private stateService: StateService) {}
 
     ngOnInit(): void {}
 

@@ -24,7 +24,9 @@
                 <div class="column is-three-quarters">
                     <a
                         href="{{
-                            'https://goalseeker.purestake.io/algorand/testnet/asset/' +
+                            'https://goalseeker.purestake.io/algorand/' +
+                                this.stateService.activeNetwork +
+                                '/asset/' +
                                 assetId
                         }}"
                         target="_blank"
@@ -41,7 +43,9 @@
                 <div class="column is-three-quarters">
                     <a
                         href="{{
-                            'https://goalseeker.purestake.io/algorand/testnet/transaction/' +
+                            'https://goalseeker.purestake.io/algorand/' +
+                                this.stateService.activeNetwork +
+                                '/transaction/' +
                                 txHash
                         }}"
                         target="_blank"
@@ -93,7 +97,9 @@
                 <div class="column is-three-quarters">
                     <a
                         href="{{
-                            'https://goalseeker.purestake.io/algorand/testnet/transaction/' +
+                            'https://goalseeker.purestake.io/algorand/' +
+                                this.stateService.activeNetwork +
+                                '/transaction/' +
                                 txHash
                         }}"
                         target="_blank"
