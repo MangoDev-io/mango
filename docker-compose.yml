@@ -1,19 +1,8 @@
 version: "3"
 services:
-  api:
-    container_name: api
-    build: ./api
-    env_file: ./api/.env
-    ports:
-      - "5000:5000"
-    links:
-      - db
-  db:
-    container_name: db
-    image: postgres:9.6.1
-    environment:
-      - POSTGRES_USER=docker
-      - POSTGRES_PASSWORD=extremelySAFUPassword
-      - POSTGRES_DB=docker
-    ports:
-      - "5432:5432"
+    api:
+        container_name: api
+        build: ./api
+        env_file: ./api/.env
+        ports:
+            - "5000:5000"
