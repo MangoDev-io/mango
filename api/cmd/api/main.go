@@ -50,7 +50,12 @@ func main() {
 	// Setup Algod Client
 	var headers []*algod.Header
 	headers = append(headers, &algod.Header{"X-API-Key", config.PSToken})
-	algodClient, err := algod.MakeClientWithHeaders(config.AlgodAddress, "", headers)
+	testnetAlgodClient, err := algod.MakeClientWithHeaders(config.TestnetAlgodAddress, "", headers)
+	if err != nil {
+		logger.WithError(err).Panic("failed to make algod client")
+	}
+
+	mainnetAlgodClient, err := algod.MakeClientWithHeaders(config.MainnetAlgodAddress, "", headers)
 	if err != nil {
 		logger.WithError(err).Panic("failed to make algod client")
 	}
@@ -59,7 +64,7 @@ func main() {
 	tokenAuth := jwtauth.New("HS256", []byte(config.TokenAuthPassword), nil)
 
 	// Setup Router
-	routerService := NewRouterService(logger, &algodClient, tokenAuth)
+	routerService := NewRouterService(logger, &testnetAlgodClient, &mainnetAlgodClient, tokenAuth)
 
 	// Serve
 	logger.Info("Starting server on port 5000")

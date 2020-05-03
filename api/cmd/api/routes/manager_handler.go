@@ -25,9 +25,10 @@ import (
 
 // ManagerHandler is the router handler for Mango
 type ManagerHandler struct {
-	log   *logrus.Logger
-	algod *algod.Client
-	jwt   *jwtauth.JWTAuth
+	log          *logrus.Logger
+	testnetAlgod *algod.Client
+	mainnetAlgod *algod.Client
+	jwt          *jwtauth.JWTAuth
 }
 
 type response struct {
@@ -38,11 +39,12 @@ type response struct {
 }
 
 // NewManagerHandler creates a new instance of ManagerHandler
-func NewManagerHandler(log *logrus.Logger, algod *algod.Client, jwt *jwtauth.JWTAuth) *ManagerHandler {
+func NewManagerHandler(log *logrus.Logger, testnetAlgod, mainnetAlgod *algod.Client, jwt *jwtauth.JWTAuth) *ManagerHandler {
 	return &ManagerHandler{
-		log:   log,
-		algod: algod,
-		jwt:   jwt,
+		log:          log,
+		testnetAlgod: testnetAlgod,
+		mainnetAlgod: mainnetAlgod,
+		jwt:          jwt,
 	}
 }
 
@@ -181,7 +183,7 @@ func (h *ManagerHandler) GetAssets(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	account, err := h.algod.AccountInformation(address)
+	account, err := h.testnetAlgod.AccountInformation(address)
 
 	var listing []models.AssetListing
 	for assetID := range account.Assets {
@@ -265,7 +267,7 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 
 	// Retrieve asset ID by grabbing the max asset ID
 	// from the creator account's holdings.
-	act, err := h.algod.AccountInformation(address)
+	act, err := h.testnetAlgod.AccountInformation(address)
 	if err != nil {
 		h.log.WithError(err).Error("failed to get account information")
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -282,7 +284,7 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 	}
 	h.log.Debugf("Asset ID from AssetParams: %d", assetID)
 	// Retrieve asset info.
-	assetInfo, err := h.algod.AssetInformation(assetID)
+	assetInfo, err := h.testnetAlgod.AssetInformation(assetID)
 	h.log.Debugf("Asset info: %#v", assetInfo)
 
 	respJSON := makeResponseJSON("success", "", assetID, txID)
@@ -586,7 +588,7 @@ func (h *ManagerHandler) recoverAccount(userMnemonic string) (ed25519.PrivateKey
 
 // Making and Sending Transactions:
 func (h *ManagerHandler) makeAndSendTxn(request interface{}, txnType string, privateKey ed25519.PrivateKey) (string, error) {
-	txnParams, err := h.algod.SuggestedParams()
+	txnParams, err := h.testnetAlgod.SuggestedParams()
 	note := []byte(nil)
 	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
 
@@ -653,14 +655,14 @@ func (h *ManagerHandler) makeAndSendTxn(request interface{}, txnType string, pri
 	}
 	h.log.Debugf("Transaction ID: %s", txid)
 	// Broadcast the transaction to the network
-	sendResponse, err := h.algod.SendRawTransaction(stx, &algod.Header{Key: "Content-Type", Value: "application/x-binary"})
+	sendResponse, err := h.testnetAlgod.SendRawTransaction(stx, &algod.Header{Key: "Content-Type", Value: "application/x-binary"})
 	if err != nil {
 		h.log.WithError(err).Error("failed to send transaction")
 		return "", err
 	}
 
 	// Wait for transaction to be confirmed
-	err = h.waitForConfirmation(h.algod, sendResponse.TxID)
+	err = h.waitForConfirmation(h.testnetAlgod, sendResponse.TxID)
 	if err != nil {
 		return "", err
 	}
