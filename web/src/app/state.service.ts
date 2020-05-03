@@ -22,9 +22,15 @@ export class StateService {
     private showCreateSubject = new BehaviorSubject<boolean>(false)
     private reloadListingsSubject = new BehaviorSubject<void>(null)
 
-    private algorandClient = new algosdk.Algod(
+    private testnetAlgorandClient = new algosdk.Algod(
         environment.algorandToken,
-        environment.algorandAddress,
+        environment.testnetAlgorandAddress,
+        ''
+    )
+
+    private mainnetAlgorandClient = new algosdk.Algod(
+        environment.algorandToken,
+        environment.mainnetAlgorandAddress,
         ''
     )
 
@@ -86,7 +92,7 @@ export class StateService {
         }
 
         return this.httpClient.get<AssetListing[]>(
-            this.baseURL + '/assets',
+            this.baseURL + '/assets/' + this.activeNetwork,
             options
         )
     }
@@ -101,7 +107,7 @@ export class StateService {
         }
 
         return this.httpClient.post<Response>(
-            this.baseURL + '/createAsset',
+            this.baseURL + '/createAsset/' + this.activeNetwork,
             a,
             options
         )
@@ -117,7 +123,7 @@ export class StateService {
         }
 
         return this.httpClient.post<Response>(
-            this.baseURL + '/freezeAsset',
+            this.baseURL + '/freezeAsset/' + this.activeNetwork,
             a,
             options
         )
@@ -133,7 +139,7 @@ export class StateService {
         }
 
         return this.httpClient.post<Response>(
-            this.baseURL + '/revokeAsset',
+            this.baseURL + '/revokeAsset/' + this.activeNetwork,
             a,
             options
         )
@@ -149,7 +155,7 @@ export class StateService {
         }
 
         return this.httpClient.post<Response>(
-            this.baseURL + '/modifyAsset',
+            this.baseURL + '/modifyAsset/' + this.activeNetwork,
             a,
             options
         )
@@ -165,13 +171,17 @@ export class StateService {
         }
 
         return this.httpClient.post<Response>(
-            this.baseURL + '/destroyAsset',
+            this.baseURL + '/destroyAsset/' + this.activeNetwork,
             a,
             options
         )
     }
 
     getAssetDetails(assetId: string) {
-        return this.algorandClient.assetInformation(assetId)
+        if (this.activeNetwork == 'testnet') {
+            return this.testnetAlgorandClient.assetInformation(assetId)
+        } else if (this.activeNetwork == 'mainnet') {
+            return this.mainnetAlgorandClient.assetInformation(assetId)
+        }
     }
 }

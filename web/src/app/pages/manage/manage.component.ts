@@ -40,15 +40,12 @@ export class ManageComponent implements OnInit {
     setMainnetActive() {
         this.stateService.activeNetwork = 'mainnet'
         this.dropdownIsActive = false
+        this.stateService.setReloadListings()
     }
 
     setTestnetActive() {
         this.stateService.activeNetwork = 'testnet'
         this.dropdownIsActive = false
-    }
-
-    setBetanetActive() {
-        this.stateService.activeNetwork = 'betanet'
-        this.dropdownIsActive = false
+        this.stateService.setReloadListings()
     }
 }

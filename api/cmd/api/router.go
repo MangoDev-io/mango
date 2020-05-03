@@ -46,12 +46,12 @@ func NewRouterService(logger *logrus.Logger, testnetAlgod, mainnetAlgod *algod.C
 		router.Use(jwtauth.Verifier(jwt))
 		router.Use(jwtauth.Authenticator)
 
-		router.Post("/createAsset", managerHandler.CreateAsset)
-		router.Post("/modifyAsset", managerHandler.ModifyAsset)
-		router.Post("/destroyAsset", managerHandler.DestroyAsset)
-		router.Post("/freezeAsset", managerHandler.FreezeAsset)
-		router.Post("/revokeAsset", managerHandler.RevokeAsset)
-		router.Get("/assets", managerHandler.GetAssets)
+		router.Post("/createAsset/{network}", managerHandler.CreateAsset)
+		router.Post("/modifyAsset/{network}", managerHandler.ModifyAsset)
+		router.Post("/destroyAsset/{network}", managerHandler.DestroyAsset)
+		router.Post("/freezeAsset/{network}", managerHandler.FreezeAsset)
+		router.Post("/revokeAsset/{network}", managerHandler.RevokeAsset)
+		router.Get("/assets/{network}", managerHandler.GetAssets)
 	})
 
 	// Public Routes

@@ -4,7 +4,8 @@
 
 export const environment = {
     production: false,
-    algorandAddress: 'https://testnet-algorand.api.purestake.io/ps1',
+    testnetAlgorandAddress: 'https://testnet-algorand.api.purestake.io/ps1',
+    mainnetAlgorandAddress: 'https://mainnet-algorand.api.purestake.io/ps1',
     algorandToken: { 'X-API-Key': 'FS0ZoE4JAe6MWL1CiJytR9nktogYSVC640C8fgk0' },
 }
 

@@ -12,9 +12,11 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 
+	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
 
 	"github.com/algorand/go-algorand-sdk/client/algod"
+	algodModels "github.com/algorand/go-algorand-sdk/client/algod/models"
 	"github.com/algorand/go-algorand-sdk/crypto"
 	"github.com/algorand/go-algorand-sdk/mnemonic"
 	"github.com/algorand/go-algorand-sdk/transaction"
@@ -172,6 +174,11 @@ func (h *ManagerHandler) GetAssets(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	useTestnetNetwork := true
+	if network := chi.URLParam(req, "network"); network == "mainnet" {
+		useTestnetNetwork = false
+	}
+
 	// privateKey, address, err := h.getPrivKeyAndAddressFromMnemonic(claims["mnemonic"].(string))
 	_, address, err := h.recoverAccount(claims["mnemonic"].(string))
 	if err != nil {
@@ -183,7 +190,12 @@ func (h *ManagerHandler) GetAssets(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	account, err := h.testnetAlgod.AccountInformation(address)
+	var account algodModels.Account
+	if useTestnetNetwork {
+		account, err = h.testnetAlgod.AccountInformation(address)
+	} else {
+		account, err = h.mainnetAlgod.AccountInformation(address)
+	}
 
 	var listing []models.AssetListing
 	for assetID := range account.Assets {
@@ -216,6 +228,11 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 		respJSON := makeResponseJSON("error", "failed to read request body", 0, "")
 		rw.Write(respJSON)
 		return
+	}
+
+	useTestnetNetwork := true
+	if network := chi.URLParam(req, "network"); network == "mainnet" {
+		useTestnetNetwork = false
 	}
 
 	var assetDetails models.AssetCreate
@@ -255,7 +272,7 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 
 	assetDetails.CreatorAddr = address
 
-	txID, err := h.makeAndSendTxn(assetDetails, "create", privateKey)
+	txID, err := h.makeAndSendTxn(assetDetails, "create", privateKey, useTestnetNetwork)
 	if err != nil {
 		h.log.WithError(err).Error("failed to make and send asset create txn")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -267,7 +284,12 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 
 	// Retrieve asset ID by grabbing the max asset ID
 	// from the creator account's holdings.
-	act, err := h.testnetAlgod.AccountInformation(address)
+	var account algodModels.Account
+	if useTestnetNetwork {
+		account, err = h.testnetAlgod.AccountInformation(address)
+	} else {
+		account, err = h.mainnetAlgod.AccountInformation(address)
+	}
 	if err != nil {
 		h.log.WithError(err).Error("failed to get account information")
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -277,7 +299,7 @@ func (h *ManagerHandler) CreateAsset(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 	assetID := uint64(0)
-	for i := range act.AssetParams {
+	for i := range account.AssetParams {
 		if i > assetID {
 			assetID = i
 		}
@@ -303,6 +325,11 @@ func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) 
 		respJSON := makeResponseJSON("error", "failed to read request body", 0, "")
 		rw.Write(respJSON)
 		return
+	}
+
+	useTestnetNetwork := true
+	if network := chi.URLParam(req, "network"); network == "mainnet" {
+		useTestnetNetwork = false
 	}
 
 	var assetDetails models.AssetModify
@@ -340,7 +367,7 @@ func (h *ManagerHandler) ModifyAsset(rw http.ResponseWriter, req *http.Request) 
 
 	assetDetails.CurrManagerAddr = managerAddr
 
-	txID, err := h.makeAndSendTxn(assetDetails, "modify", privateKey)
+	txID, err := h.makeAndSendTxn(assetDetails, "modify", privateKey, useTestnetNetwork)
 	if err != nil {
 		h.log.WithError(err).Error("failed to make and send asset modify txn")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -367,6 +394,11 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 		respJSON := makeResponseJSON("error", "failed to read request body", 0, "")
 		rw.Write(respJSON)
 		return
+	}
+
+	useTestnetNetwork := true
+	if network := chi.URLParam(req, "network"); network == "mainnet" {
+		useTestnetNetwork = false
 	}
 
 	var assetDetails models.AssetDestroy
@@ -404,7 +436,7 @@ func (h *ManagerHandler) DestroyAsset(rw http.ResponseWriter, req *http.Request)
 
 	assetDetails.ManagerAddr = managerAddr
 
-	txID, err := h.makeAndSendTxn(assetDetails, "destory", privateKey)
+	txID, err := h.makeAndSendTxn(assetDetails, "destory", privateKey, useTestnetNetwork)
 	if err != nil {
 		h.log.WithError(err).Error("failed to make and send asset destroy txn")
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -431,6 +463,11 @@ func (h *ManagerHandler) FreezeAsset(rw http.ResponseWriter, req *http.Request) 
 		respJSON := makeResponseJSON("error", "failed to read request body", 0, "")
 		rw.Write(respJSON)
 		return
+	}
+
+	useTestnetNetwork := true
+	if network := chi.URLParam(req, "network"); network == "mainnet" {
+		useTestnetNetwork = false
 	}
 
 	var assetDetails models.AssetFreeze
@@ -468,7 +505,7 @@ func (h *ManagerHandler) FreezeAsset(rw http.ResponseWriter, req *http.Request) 
 
 	assetDetails.FreezeAddr = freezeAddr
 
-	txID, err := h.makeAndSendTxn(assetDetails, "freeze", privateKey)
+	txID, err := h.makeAndSendTxn(assetDetails, "freeze", privateKey, useTestnetNetwork)
 	if err != nil {
 		h.log.WithError(err).Error("failed to make and send asset freeze txn")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -495,6 +532,11 @@ func (h *ManagerHandler) RevokeAsset(rw http.ResponseWriter, req *http.Request) 
 		respJSON := makeResponseJSON("error", "failed to read request body", 0, "")
 		rw.Write(respJSON)
 		return
+	}
+
+	useTestnetNetwork := true
+	if network := chi.URLParam(req, "network"); network == "mainnet" {
+		useTestnetNetwork = false
 	}
 
 	var assetDetails models.AssetRevoke
@@ -532,7 +574,7 @@ func (h *ManagerHandler) RevokeAsset(rw http.ResponseWriter, req *http.Request) 
 
 	assetDetails.ClawbackAddr = clawbackAddr
 
-	txID, err := h.makeAndSendTxn(assetDetails, "revoke", privateKey)
+	txID, err := h.makeAndSendTxn(assetDetails, "revoke", privateKey, useTestnetNetwork)
 	if err != nil {
 		h.log.WithError(err).Error("failed to make and send asset revoke txn")
 		rw.WriteHeader(http.StatusBadRequest)
@@ -587,8 +629,13 @@ func (h *ManagerHandler) recoverAccount(userMnemonic string) (ed25519.PrivateKey
 }
 
 // Making and Sending Transactions:
-func (h *ManagerHandler) makeAndSendTxn(request interface{}, txnType string, privateKey ed25519.PrivateKey) (string, error) {
-	txnParams, err := h.testnetAlgod.SuggestedParams()
+func (h *ManagerHandler) makeAndSendTxn(request interface{}, txnType string, privateKey ed25519.PrivateKey, useTestnetNetwork bool) (string, error) {
+	var txnParams algodModels.TransactionParams
+	if useTestnetNetwork {
+		txnParams, _ = h.testnetAlgod.SuggestedParams()
+	} else {
+		txnParams, _ = h.mainnetAlgod.SuggestedParams()
+	}
 	note := []byte(nil)
 	gHash := base64.StdEncoding.EncodeToString(txnParams.GenesisHash)
 
@@ -596,7 +643,7 @@ func (h *ManagerHandler) makeAndSendTxn(request interface{}, txnType string, pri
 
 	switch assetDetails := request.(type) {
 	case models.AssetCreate:
-		txn, err = transaction.MakeAssetCreateTxn(assetDetails.CreatorAddr, txnParams.Fee, txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.TotalIssuance, assetDetails.Decimals, assetDetails.DefaultFrozen, assetDetails.ManagerAddr, assetDetails.ReserveAddr, assetDetails.FreezeAddr, assetDetails.ClawbackAddr, assetDetails.UnitName, assetDetails.AssetName, assetDetails.URL, assetDetails.MetaDataHash)
+		txn, err := transaction.MakeAssetCreateTxn(assetDetails.CreatorAddr, txnParams.Fee, txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.TotalIssuance, assetDetails.Decimals, assetDetails.DefaultFrozen, assetDetails.ManagerAddr, assetDetails.ReserveAddr, assetDetails.FreezeAddr, assetDetails.ClawbackAddr, assetDetails.UnitName, assetDetails.AssetName, assetDetails.URL, assetDetails.MetaDataHash)
 		if err != nil {
 			h.log.WithError(err).Error("Failed to make asset")
 			return "", err
@@ -605,7 +652,7 @@ func (h *ManagerHandler) makeAndSendTxn(request interface{}, txnType string, pri
 		break
 
 	case models.AssetModify:
-		txn, err = transaction.MakeAssetConfigTxn(assetDetails.CurrManagerAddr, txnParams.Fee,
+		_, err := transaction.MakeAssetConfigTxn(assetDetails.CurrManagerAddr, txnParams.Fee,
 			txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID, assetDetails.NewManagerAddr, assetDetails.NewReserveAddr, assetDetails.NewFreezeAddr, assetDetails.NewClawbackAddr, false)
 		if err != nil {
 			h.log.WithError(err).Error("Failed to modify asset")
@@ -615,7 +662,7 @@ func (h *ManagerHandler) makeAndSendTxn(request interface{}, txnType string, pri
 		break
 
 	case models.AssetDestroy:
-		txn, err = transaction.MakeAssetDestroyTxn(assetDetails.ManagerAddr, txnParams.Fee,
+		_, err := transaction.MakeAssetDestroyTxn(assetDetails.ManagerAddr, txnParams.Fee,
 			txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID)
 		if err != nil {
 			h.log.WithError(err).Error("Failed to destroy asset")
@@ -625,7 +672,7 @@ func (h *ManagerHandler) makeAndSendTxn(request interface{}, txnType string, pri
 		break
 
 	case models.AssetFreeze:
-		txn, err = transaction.MakeAssetFreezeTxn(assetDetails.FreezeAddr, txnParams.Fee,
+		_, err := transaction.MakeAssetFreezeTxn(assetDetails.FreezeAddr, txnParams.Fee,
 			txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID, assetDetails.TargetAddr, assetDetails.FreezeSetting)
 		if err != nil {
 			h.log.WithError(err).Error("Failed to freeze asset")
@@ -635,7 +682,7 @@ func (h *ManagerHandler) makeAndSendTxn(request interface{}, txnType string, pri
 		break
 
 	case models.AssetRevoke:
-		txn, err = transaction.MakeAssetRevocationTxn(assetDetails.ClawbackAddr, assetDetails.TargetAddr, assetDetails.RecipientAddr, assetDetails.Amount, txnParams.Fee,
+		_, err := transaction.MakeAssetRevocationTxn(assetDetails.ClawbackAddr, assetDetails.TargetAddr, assetDetails.RecipientAddr, assetDetails.Amount, txnParams.Fee,
 			txnParams.LastRound, txnParams.LastRound+1000, note, txnParams.GenesisID, gHash, assetDetails.AssetID)
 		if err != nil {
 			h.log.WithError(err).Error("Failed to revoke asset")
@@ -655,14 +702,23 @@ func (h *ManagerHandler) makeAndSendTxn(request interface{}, txnType string, pri
 	}
 	h.log.Debugf("Transaction ID: %s", txid)
 	// Broadcast the transaction to the network
-	sendResponse, err := h.testnetAlgod.SendRawTransaction(stx, &algod.Header{Key: "Content-Type", Value: "application/x-binary"})
+	var sendResponse algodModels.TransactionID
+	if useTestnetNetwork {
+		sendResponse, err = h.testnetAlgod.SendRawTransaction(stx, &algod.Header{Key: "Content-Type", Value: "application/x-binary"})
+	} else {
+		sendResponse, err = h.mainnetAlgod.SendRawTransaction(stx, &algod.Header{Key: "Content-Type", Value: "application/x-binary"})
+	}
 	if err != nil {
 		h.log.WithError(err).Error("failed to send transaction")
 		return "", err
 	}
 
 	// Wait for transaction to be confirmed
-	err = h.waitForConfirmation(h.testnetAlgod, sendResponse.TxID)
+	if useTestnetNetwork {
+		err = h.waitForConfirmation(h.testnetAlgod, sendResponse.TxID)
+	} else {
+		err = h.waitForConfirmation(h.mainnetAlgod, sendResponse.TxID)
+	}
 	if err != nil {
 		return "", err
 	}
