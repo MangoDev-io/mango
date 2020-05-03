@@ -14,13 +14,9 @@ _Setup_
 2. Set the following environment variables in the file
 
 ```
-API_ALGODADDRESS=<purestake node address>
+API_TESTNETALGODADDRESS=<purestake node address>
+API_MAINNETALGODADDRESS=<purestake node address>
 API_PSTOKEN=<purestake token>
-
-API_POSTGRESQLUSERNAME=
-API_POSTGRESQLPASSWORD=
-API_POSTGRESQLDATABASE=
-API_POSTGRESQLHOST=db:5432
 
 API_TOKENAUTHPASSWORD=
 ```
